@@ -15,8 +15,14 @@ const fmtSpd = (kt) =>
 // Build an L.divIcon for a single flight
 const buildIcon = (flight) => {
     const { heading = 0, displayColor = '#6B7280', classification, pulseAnimation } = flight
-    const isMilOrUnknown = classification === 'MILITARY' || classification === 'UNKNOWN'
+    const isMilitary = classification === 'MILITARY'
+    const isMilOrUnknown = isMilitary || classification === 'UNKNOWN'
     const size = isMilOrUnknown ? 24 : 20
+
+    // Only military gets the glow drop-shadow; unknown is enlarged but plain
+    const shadow = isMilitary
+        ? `filter:drop-shadow(0 0 3px ${displayColor}88);`
+        : ''
 
     const pulse = pulseAnimation
         ? `<span class="aircraft-pulse" style="--pulse-color:${displayColor}"></span>`
@@ -30,7 +36,7 @@ const buildIcon = (flight) => {
                 viewBox="0 0 24 24"
                 width="${size}"
                 height="${size}"
-                style="transform:rotate(${heading}deg);display:block;filter:drop-shadow(0 0 3px ${displayColor}88);"
+                style="transform:rotate(${heading}deg);display:block;${shadow}"
                 fill="${displayColor}"
             >
                 <!-- Airplane silhouette -->

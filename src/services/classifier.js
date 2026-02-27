@@ -246,7 +246,6 @@ const classifySingle = (flight, now) => {
   const threatLevel  = THREAT_LEVELS[classification];
   const displayColor = COLORS[classification];
   const pulseAnimation =
-    classification === CLASSIFICATIONS.UNKNOWN ||
     classification === CLASSIFICATIONS.MILITARY;
 
   const alertMessage =
