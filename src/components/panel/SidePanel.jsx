@@ -1,19 +1,249 @@
-import FilterBar from './FilterBar'
+import React, { useMemo, useState, useEffect } from 'react'
+import useFlightStore from '@/store/useFlightStore'
 import FlightCard from './FlightCard'
 
-const SidePanel = () => {
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const CLASS_DOT_COLOR = {
+    COMMERCIAL:   '#3B82F6',
+    MILITARY:     '#F97316',
+    SURVEILLANCE: '#F59E0B',
+    UNKNOWN:      '#EF4444',
+    UNCLASSIFIED: '#6B7280',
+}
+
+const CLASS_LABEL = {
+    COMMERCIAL:   'Commercial',
+    MILITARY:     'Military',
+    SURVEILLANCE: 'Surveillance',
+    UNKNOWN:      'Unknown',
+    UNCLASSIFIED: 'Unclassified',
+}
+
+// Only show these 4 in the header summary
+const HEADER_TYPES = ['COMMERCIAL', 'MILITARY', 'SURVEILLANCE', 'UNKNOWN']
+
+// ── Mini flight row for the list view ────────────────────────────────────────
+
+const FlightRow = React.memo(({ flight, isSelected, onSelect }) => {
+    const age = flight.lastContact
+        ? Math.floor(Date.now() / 1000) - flight.lastContact
+        : null
+
     return (
-        <div className="h-full flex flex-col">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-                <h2 className="text-xl font-bold mb-4">Live Flight Tracking</h2>
-                <FilterBar />
+        <button
+            onClick={() => onSelect(flight.icao24)}
+            className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-start gap-2 group
+                ${isSelected
+                    ? 'bg-slate-700/80 ring-1 ring-slate-500'
+                    : 'hover:bg-slate-800/70'
+                }`}
+        >
+            {/* Color dot + pulse indicator */}
+            <div className="relative mt-0.5 shrink-0">
+                <span
+                    className="block w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: flight.displayColor }}
+                />
+                {flight.pulseAnimation && (
+                    <span
+                        className="absolute inset-0 rounded-full aircraft-pulse-sm"
+                        style={{ '--pulse-color': flight.displayColor }}
+                    />
+                )}
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {/* Placeholder for flight list mapping */}
-                <FlightCard />
+
+            <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline">
+                    <span className="text-xs font-semibold text-yellow-300 truncate">
+                        {flight.callsign || flight.icao24}
+                    </span>
+                    <span className="text-[10px] text-slate-600 ml-2 shrink-0">
+                        {age != null ? `${age}s` : '—'}
+                    </span>
+                </div>
+                <div className="text-[10px] text-slate-500 mt-0.5 flex gap-2">
+                    <span>{flight.altitude != null ? `${Math.round(flight.altitude).toLocaleString()} ft` : '—'}</span>
+                    <span>·</span>
+                    <span>{flight.velocity != null ? `${Math.round(flight.velocity)} kt` : '—'}</span>
+                    <span>·</span>
+                    <span style={{ color: flight.displayColor }}>
+                        {CLASS_LABEL[flight.classification] ?? flight.classification}
+                    </span>
+                </div>
+            </div>
+
+            {/* Threat level indicator */}
+            {flight.threatLevel > 0 && (
+                <div className="flex flex-col gap-0.5 mt-1 shrink-0">
+                    {[0, 1, 2, 3].map((i) => (
+                        <div
+                            key={i}
+                            className={`w-1 h-1 rounded-sm ${
+                                i < flight.threatLevel
+                                    ? ''
+                                    : 'bg-slate-700'
+                            }`}
+                            style={i < flight.threatLevel
+                                ? { backgroundColor: flight.displayColor }
+                                : undefined
+                            }
+                        />
+                    ))}
+                </div>
+            )}
+        </button>
+    )
+})
+
+FlightRow.displayName = 'FlightRow'
+
+// ── SidePanel ─────────────────────────────────────────────────────────────────
+
+const SidePanel = () => {
+    const flights        = useFlightStore((s) => s.flights)
+    const filters        = useFlightStore((s) => s.filters)
+    const selectedIcao   = useFlightStore((s) => s.selectedFlight)
+    const selectFlight   = useFlightStore((s) => s.selectFlight)
+
+    // Track last-updated time locally by watching when flights array changes
+    const [lastUpdated, setLastUpdated] = useState(null)
+    useEffect(() => {
+        if (flights.length > 0) setLastUpdated(new Date())
+    }, [flights])
+
+    const [collapsed, setCollapsed] = useState(false)
+
+    // Map classifier classification → filter key
+    const classToFilterKey = {
+        COMMERCIAL:   'commercial',
+        UNKNOWN:      'unknown',
+        SURVEILLANCE: 'surveillance',
+        MILITARY:     'military',
+        UNCLASSIFIED: 'unknown',
+    }
+
+    // Visible flights (filter-aware), sorted by threat DESC
+    const visibleFlights = useMemo(() => {
+        return flights
+            .filter((f) => {
+                const key = classToFilterKey[f.classification] ?? 'unknown'
+                return filters[key] !== false
+            })
+            .sort((a, b) => (b.threatLevel ?? 0) - (a.threatLevel ?? 0))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [flights, filters])
+
+    // Count by classification for header
+    const typeCounts = useMemo(() => {
+        const counts = {}
+        for (const f of visibleFlights) {
+            const cls = f.classification ?? 'UNCLASSIFIED'
+            counts[cls] = (counts[cls] ?? 0) + 1
+        }
+        return counts
+    }, [visibleFlights])
+
+    const selectedFlight = useMemo(
+        () => flights.find((f) => f.icao24 === selectedIcao) ?? null,
+        [flights, selectedIcao]
+    )
+
+    const lastUpdatedStr = lastUpdated
+        ? lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        : '—'
+
+    return (
+        <div
+            className={`absolute right-0 inset-y-0 z-[1000] flex transition-all duration-300 ${
+                collapsed ? 'w-0' : 'w-[300px]'
+            }`}
+        >
+            {/* Toggle tab on left edge */}
+            <button
+                onClick={() => setCollapsed((c) => !c)}
+                className="absolute -left-6 top-1/2 -translate-y-1/2 w-6 h-14 flex items-center justify-center
+                           bg-slate-800/90 border border-slate-700 border-r-0 rounded-l-md
+                           text-slate-400 hover:text-slate-200 hover:bg-slate-700/90 transition-colors
+                           z-[1001] select-none"
+                title={collapsed ? 'Open panel' : 'Collapse panel'}
+            >
+                <span className="text-xs">{collapsed ? '◀' : '▶'}</span>
+            </button>
+
+            {/* Panel body */}
+            <div
+                className={`flex flex-col w-full bg-slate-900/95 backdrop-blur-sm border-l border-slate-700/60
+                            overflow-hidden transition-opacity duration-300 ${
+                                collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                            }`}
+            >
+                {/* ── HEADER ───────────────────────────────────── */}
+                <div className="px-4 pt-3 pb-2 border-b border-slate-700/60 shrink-0">
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-xs font-semibold tracking-widest text-slate-400 uppercase select-none">
+                            Kurdistan Air Watch
+                        </h2>
+                        <span className="text-[10px] text-slate-600">
+                            {visibleFlights.length} visible
+                        </span>
+                    </div>
+
+                    {/* Type count dots */}
+                    <div className="flex flex-wrap gap-x-3 gap-y-1">
+                        {HEADER_TYPES.map((cls) => (
+                            <div key={cls} className="flex items-center gap-1 text-[10px] text-slate-400">
+                                <span
+                                    className="w-2 h-2 rounded-full shrink-0"
+                                    style={{ backgroundColor: CLASS_DOT_COLOR[cls] }}
+                                />
+                                {CLASS_LABEL[cls]}
+                                <span className="text-slate-600">
+                                    {typeCounts[cls] ?? 0}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* ── BODY ─────────────────────────────────────── */}
+                <div className="flex-1 overflow-y-auto min-h-0 px-2 py-2">
+                    {selectedFlight ? (
+                        <div className="relative px-2 pt-1">
+                            <FlightCard flight={selectedFlight} />
+                        </div>
+                    ) : visibleFlights.length > 0 ? (
+                        <div className="space-y-0.5">
+                            {visibleFlights.map((f) => (
+                                <FlightRow
+                                    key={f.icao24}
+                                    flight={f}
+                                    isSelected={f.icao24 === selectedIcao}
+                                    onSelect={selectFlight}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-600 text-sm">
+                            <span className="text-2xl">✈</span>
+                            <span>No aircraft in view</span>
+                        </div>
+                    )}
+                </div>
+
+                {/* ── FOOTER ───────────────────────────────────── */}
+                <div className="px-4 py-2 border-t border-slate-700/60 shrink-0 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-600">
+                        Updated: {lastUpdatedStr}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-[10px]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-slate-500">Live</span>
+                    </div>
+                </div>
             </div>
         </div>
     )
 }
 
-export default SidePanel
+export default React.memo(SidePanel)
