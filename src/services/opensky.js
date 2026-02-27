@@ -1,15 +1,26 @@
 import axios from 'axios'
 
+// ─── Axios instance (declared first — used by auth + fetch below) ─────────────
+// All requests go through Vite's dev-server proxy to avoid browser CORS blocks.
+const api = axios.create({ timeout: 15_000 })
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const BASE_URL = 'https://opensky-network.org/api/states/all'
+const BASE_URL  = '/api/opensky/states/all'
+const TOKEN_URL = '/auth/opensky/auth/realms/opensky-network/protocol/openid-connect/token'
 
-/** Kurdistan region + buffer bounding box */
+/**
+ * MENA + surrounding region bounding box
+ * Covers: North Africa, Arabian Peninsula, Levant, Turkey,
+ *         Iran, Gulf states, parts of Central Asia & Europe border
+ *   lat: 10°N (Yemen/Somalia) → 42°N (Turkey/Caucasus)
+ *   lon: 25°E (Egypt/Libya)   → 63°E (Pakistan border)
+ */
 const BBOX = {
-    lamin: 35.0,
-    lomin: 42.0,
-    lamax: 37.5,
-    lomax: 46.5,
+    lamin: 10.0,
+    lomin: 25.0,
+    lamax: 42.0,
+    lomax: 63.0,
 }
 
 const M_TO_FT = 3.28084
@@ -38,22 +49,66 @@ const F = {
 // ─── Module-level last-known state cache ──────────────────────────────────────
 let _lastKnownFlights = []
 
-// ─── Axios instance ───────────────────────────────────────────────────────────
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 
-const _buildAuthHeader = () => {
-    const user = import.meta.env.VITE_OPENSKY_USERNAME
-    const pass = import.meta.env.VITE_OPENSKY_PASSWORD
-    if (user && pass) {
-        const encoded = btoa(`${user}:${pass}`)
-        return { Authorization: `Basic ${encoded}` }
+let _accessToken     = null
+let _tokenExpiresAt  = 0  // Unix ms
+
+/**
+ * Fetches a fresh OAuth2 Bearer token using client_credentials grant.
+ * Caches the token until it expires (minus a 30s safety buffer).
+ * Falls back to anonymous (no header) if credentials are missing or the
+ * token request fails.
+ */
+const _getAccessToken = async () => {
+    const clientId     = import.meta.env.VITE_OPENSKY_USERNAME
+    const clientSecret = import.meta.env.VITE_OPENSKY_PASSWORD
+
+    if (!clientId || !clientSecret) {
+        console.warn('[opensky] No credentials in .env — using anonymous access')
+        return null
     }
-    return {}
+
+    // Return cached token if still valid
+    if (_accessToken && Date.now() < _tokenExpiresAt) {
+        console.debug('[opensky] Using cached token')
+        return _accessToken
+    }
+
+    console.info('[opensky] Fetching new OAuth2 token for client_id:', clientId)
+    try {
+        const body = new URLSearchParams({
+            grant_type:    'client_credentials',
+            client_id:     clientId,
+            client_secret: clientSecret,
+        })
+
+        const resp = await api.post(TOKEN_URL, body.toString(), {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        })
+
+        _accessToken    = resp.data.access_token
+        const expiresIn = resp.data.expires_in ?? 300
+        _tokenExpiresAt = Date.now() + (expiresIn - 30) * 1000
+
+        console.info(`[opensky] ✅ Token obtained — expires in ${expiresIn}s, length ${_accessToken?.length}`)
+        return _accessToken
+    } catch (err) {
+        const status = err?.response?.status
+        const detail = err?.response?.data ?? err.message
+        console.error(`[opensky] ❌ Token fetch FAILED (HTTP ${status})`, detail)
+        return null
+    }
 }
 
-const api = axios.create({
-    baseURL: 'https://opensky-network.org/api',
-    timeout: 10_000,
-})
+/**
+ * Builds the Authorization header.
+ * Uses Bearer token if available, otherwise anonymous (empty object).
+ */
+const _buildAuthHeader = async () => {
+    const token = await _getAccessToken()
+    return token ? { Authorization: `Bearer ${token}` } : {}
+}
 
 // ─── Normalisation ────────────────────────────────────────────────────────────
 
@@ -91,6 +146,8 @@ const withRetry = async (fn, retries = MAX_RETRIES, delay = BASE_DELAY_MS) => {
     try {
         return await fn()
     } catch (err) {
+        // Never retry a 429 — it wastes quota and extends the ban window
+        if (err?.response?.status === 429) throw err
         if (retries <= 0) throw err
         console.warn(
             `[opensky] Request failed – retrying in ${delay}ms ` +
@@ -100,6 +157,10 @@ const withRetry = async (fn, retries = MAX_RETRIES, delay = BASE_DELAY_MS) => {
         return withRetry(fn, retries - 1, delay * 2)
     }
 }
+
+// Timestamp until which we should not re-attempt (rate-limit cooldown)
+let _rateLimitedUntil = 0
+const RATE_LIMIT_COOLDOWN_MS = 10 * 60 * 1000 // 10 minutes
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
@@ -111,17 +172,29 @@ const withRetry = async (fn, retries = MAX_RETRIES, delay = BASE_DELAY_MS) => {
  * @returns {Promise<Array>} Normalised, filtered flight objects.
  */
 export const fetchFlights = async () => {
+    // Respect rate-limit cooldown — return cached data without hitting the API
+    if (Date.now() < _rateLimitedUntil) {
+        const remainingSec = Math.ceil((_rateLimitedUntil - Date.now()) / 1000)
+        console.warn(`[opensky] Rate-limited. Resuming in ${remainingSec}s.`)
+        return _lastKnownFlights
+    }
+
     try {
+        const authHeader = await _buildAuthHeader()
+        const isAuth = !!authHeader.Authorization
+        console.info(`[opensky] Fetching flights — auth: ${isAuth ? '✅ Bearer' : '⚠️ anonymous'}, url: ${BASE_URL}`)
+
         const data = await withRetry(async () => {
-            const resp = await axios.get(BASE_URL, {
-                params: BBOX,
-                headers: _buildAuthHeader(),
-                timeout: 10_000,
+            const resp = await api.get(BASE_URL, {
+                params:  BBOX,
+                headers: authHeader,
             })
+            console.info(`[opensky] API response: HTTP ${resp.status}, states: ${resp.data?.states?.length ?? 'null'}`)
             return resp.data
         })
 
         const states = data?.states ?? []
+        console.info(`[opensky] Raw states: ${states.length}`)
 
         const flights = states
             .map(normalise)
@@ -132,12 +205,16 @@ export const fetchFlights = async () => {
                     !f.onGround
             )
 
+        console.info(`[opensky] ✅ Airborne flights after filter: ${flights.length}`)
         _lastKnownFlights = flights
         return flights
     } catch (err) {
-        console.error('[opensky] All retries exhausted – returning last known state.', err)
+        if (err?.response?.status === 429) {
+            _rateLimitedUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS
+            console.warn('[opensky] 429 received — pausing requests for 10 minutes.')
+        } else {
+            console.error('[opensky] ❌ All retries exhausted:', err?.response?.status, err.message)
+        }
         return _lastKnownFlights
     }
 }
-
-export default api

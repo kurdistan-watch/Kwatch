@@ -16,7 +16,7 @@ import useFlightStore from '@/store/useFlightStore'
  * @param {number} [interval=15000]  Poll cadence in milliseconds.
  * @returns {{ loading: boolean, error: string|null, lastUpdated: Date|null, flightCount: number }}
  */
-export const useFlightPoll = (interval = 15_000) => {
+export const useFlightPoll = (interval = 60_000) => {
     const setFlights = useFlightStore((state) => state.setFlights)
     const flightCount = useFlightStore((state) => state.flights.length)
 

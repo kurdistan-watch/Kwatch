@@ -158,6 +158,7 @@ const SidePanel = () => {
             className={`absolute right-0 inset-y-0 z-[1000] flex transition-all duration-300 ${
                 collapsed ? 'w-0' : 'w-[300px]'
             }`}
+            style={{ overflow: 'visible' }}
         >
             {/* Toggle tab on left edge */}
             <button

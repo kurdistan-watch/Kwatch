@@ -11,4 +11,23 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
+    server: {
+        proxy: {
+            // Proxy OAuth2 token endpoint — must be listed FIRST and use a
+            // distinct prefix so it doesn't collide with /api/opensky below.
+            '/auth/opensky': {
+                target: 'https://auth.opensky-network.org',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/auth\/opensky/, ''),
+                secure: true,
+            },
+            // Proxy OpenSky REST API calls
+            '/api/opensky': {
+                target: 'https://opensky-network.org',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/opensky/, '/api'),
+                secure: true,
+            },
+        },
+    },
 })

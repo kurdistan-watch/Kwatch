@@ -29,8 +29,14 @@ const MapEvents = () => {
 const MapContainer = () => {
     const center = [36.35, 44.2] // Kurdistan Region centroid
     const defaultZoom = 7
-    const minZoom = 5
+    const minZoom = 4
     const maxZoom = 14
+
+    // Hard clamp to MENA bbox — matches the API bounding box exactly
+    const maxBounds = [
+        [10.0, 25.0], // SW — Yemen / Libya
+        [42.0, 63.0], // NE — Turkey / Pakistan border
+    ]
 
     return (
         <div className="relative w-full" style={{ height: '100%', backgroundColor: '#0a0e1a' }}>
@@ -42,6 +48,8 @@ const MapContainer = () => {
                 zoom={defaultZoom}
                 minZoom={minZoom}
                 maxZoom={maxZoom}
+                maxBounds={maxBounds}
+                maxBoundsViscosity={1.0}
                 scrollWheelZoom={true}
                 zoomControl={false}
                 attributionControl={false}
