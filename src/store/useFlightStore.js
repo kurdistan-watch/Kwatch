@@ -27,7 +27,6 @@ const useFlightStore = create((set) => ({
     filters: {
         commercial: true,
         unknown: true,
-        surveillance: true,
         military: true,
     },
 

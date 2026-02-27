@@ -5,32 +5,24 @@ import useFlightStore from '@/store/useFlightStore'
 
 const FILTER_BUTTONS = [
     {
-        key:   'commercial',
-        label: 'Commercial',
-        icon:  '✈',
-        color: '#3B82F6',   // blue-500
-        // classifier classification that maps to this filter
+        key:            'commercial',
+        label:          'Commercial',
+        icon:           '✈',
+        color:          '#3B82F6',
         classification: 'COMMERCIAL',
     },
     {
-        key:   'unknown',
-        label: 'Unknown',
-        icon:  '?',
-        color: '#EF4444',   // red-500
+        key:            'unknown',
+        label:          'Unknown',
+        icon:           '?',
+        color:          '#EF4444',
         classification: 'UNKNOWN',
     },
     {
-        key:   'surveillance',
-        label: 'Surveil.',
-        icon:  '🔍',
-        color: '#F59E0B',   // amber-500
-        classification: 'SURVEILLANCE',
-    },
-    {
-        key:   'military',
-        label: 'Military',
-        icon:  '⚔',
-        color: '#F97316',   // orange-500
+        key:            'military',
+        label:          'Military',
+        icon:           '⚔',
+        color:          '#F97316',
         classification: 'MILITARY',
     },
 ]

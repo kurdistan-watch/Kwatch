@@ -5,23 +5,18 @@ import FlightCard from './FlightCard'
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const CLASS_DOT_COLOR = {
-    COMMERCIAL:   '#3B82F6',
-    MILITARY:     '#F97316',
-    SURVEILLANCE: '#F59E0B',
-    UNKNOWN:      '#EF4444',
-    UNCLASSIFIED: '#6B7280',
+    COMMERCIAL: '#3B82F6',
+    MILITARY:   '#F97316',
+    UNKNOWN:    '#EF4444',
 }
 
 const CLASS_LABEL = {
-    COMMERCIAL:   'Commercial',
-    MILITARY:     'Military',
-    SURVEILLANCE: 'Surveillance',
-    UNKNOWN:      'Unknown',
-    UNCLASSIFIED: 'Unclassified',
+    COMMERCIAL: 'Commercial',
+    MILITARY:   'Military',
+    UNKNOWN:    'Unknown',
 }
 
-// Only show these 4 in the header summary
-const HEADER_TYPES = ['COMMERCIAL', 'MILITARY', 'SURVEILLANCE', 'UNKNOWN']
+const HEADER_TYPES = ['COMMERCIAL', 'MILITARY', 'UNKNOWN']
 
 // ── Mini flight row for the list view ────────────────────────────────────────
 
@@ -114,13 +109,10 @@ const SidePanel = () => {
 
     const [collapsed, setCollapsed] = useState(false)
 
-    // Map classifier classification → filter key
     const classToFilterKey = {
-        COMMERCIAL:   'commercial',
-        UNKNOWN:      'unknown',
-        SURVEILLANCE: 'surveillance',
-        MILITARY:     'military',
-        UNCLASSIFIED: 'unknown',
+        COMMERCIAL: 'commercial',
+        UNKNOWN:    'unknown',
+        MILITARY:   'military',
     }
 
     // Visible flights (filter-aware), sorted by threat DESC

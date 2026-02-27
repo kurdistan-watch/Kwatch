@@ -146,13 +146,10 @@ const AircraftLayer = () => {
         return () => map.off('zoom', onZoom)
     }, [map])
 
-    // Map classifier classification → filter key
     const classToFilterKey = {
-        COMMERCIAL:   'commercial',
-        UNKNOWN:      'unknown',
-        SURVEILLANCE: 'surveillance',
-        MILITARY:     'military',
-        UNCLASSIFIED: 'unknown',
+        COMMERCIAL: 'commercial',
+        UNKNOWN:    'unknown',
+        MILITARY:   'military',
     }
 
     const visible = useMemo(

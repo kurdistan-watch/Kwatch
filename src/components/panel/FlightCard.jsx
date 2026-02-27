@@ -90,11 +90,9 @@ const ThreatBar = ({ level }) => {
 
 // Classification → Tailwind classes
 const CLASS_BADGE = {
-    UNKNOWN:      'text-red-400 bg-red-500/10 border-red-500/40',
-    SURVEILLANCE: 'text-amber-400 bg-amber-500/10 border-amber-500/40',
-    MILITARY:     'text-orange-400 bg-orange-500/10 border-orange-500/40',
-    COMMERCIAL:   'text-blue-400 bg-blue-500/10 border-blue-500/40',
-    UNCLASSIFIED: 'text-slate-400 bg-slate-500/10 border-slate-500/40',
+    UNKNOWN:    'text-red-400 bg-red-500/10 border-red-500/40',
+    MILITARY:   'text-orange-400 bg-orange-500/10 border-orange-500/40',
+    COMMERCIAL: 'text-blue-400 bg-blue-500/10 border-blue-500/40',
 }
 
 // ── Main FlightCard ───────────────────────────────────────────────────────────
