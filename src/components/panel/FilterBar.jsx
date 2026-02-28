@@ -75,10 +75,11 @@ const FilterBar = () => {
                         <span className="text-[11px] leading-none">{icon}</span>
                         <span className="leading-none">{label}</span>
                         <span
-                            className="ml-1 min-w-[16px] text-center rounded-full text-[10px] font-bold leading-none py-0.5 px-1"
+                            className={`ml-1 min-w-[16px] text-center rounded-full text-[10px] font-bold leading-none py-0.5 px-1
+                                ${active ? '' : 'bg-slate-200 dark:bg-slate-800'}`}
                             style={{
-                                backgroundColor: active ? `${color}33` : '#1e293b',
-                                color: active ? color : '#4B5563',
+                                backgroundColor: active ? `${color}33` : undefined,
+                                color: active ? color : '#6B7280',
                             }}
                         >
                             {counts[key] ?? 0}

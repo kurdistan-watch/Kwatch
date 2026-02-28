@@ -30,8 +30,8 @@ const FlightRow = React.memo(({ flight, isSelected, onSelect }) => {
             onClick={() => onSelect(flight.icao24)}
             className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-start gap-2 group
                 ${isSelected
-                    ? 'bg-slate-700/80 ring-1 ring-slate-500'
-                    : 'hover:bg-slate-800/70'
+                    ? 'bg-slate-700/80 dark:bg-slate-700/80 ring-1 ring-slate-500'
+                    : 'hover:bg-slate-200/80 dark:hover:bg-slate-800/70'
                 }`}
         >
             {/* Color dot + pulse indicator */}
@@ -50,14 +50,14 @@ const FlightRow = React.memo(({ flight, isSelected, onSelect }) => {
 
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline">
-                    <span className="text-xs font-semibold text-yellow-300 truncate">
+                    <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-300 truncate">
                         {flight.callsign || flight.icao24}
                     </span>
-                    <span className="text-[10px] text-slate-600 ml-2 shrink-0">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-600 ml-2 shrink-0">
                         {age != null ? `${age}s` : '—'}
                     </span>
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5 flex gap-2">
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 flex gap-2">
                     <span>{flight.altitude != null ? `${Math.round(flight.altitude).toLocaleString()} ft` : '—'}</span>
                     <span>·</span>
                     <span>{flight.velocity != null ? `${Math.round(flight.velocity)} kt` : '—'}</span>
@@ -156,8 +156,8 @@ const SidePanel = () => {
             <button
                 onClick={() => setCollapsed((c) => !c)}
                 className="absolute -left-6 top-1/2 -translate-y-1/2 w-6 h-14 flex items-center justify-center
-                           bg-slate-800/90 border border-slate-700 border-r-0 rounded-l-md
-                           text-slate-400 hover:text-slate-200 hover:bg-slate-700/90 transition-colors
+                           bg-white/90 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 border-r-0 rounded-l-md
+                           text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/90 transition-colors
                            z-[1001] select-none"
                 title={collapsed ? 'Open panel' : 'Collapse panel'}
             >
@@ -166,18 +166,18 @@ const SidePanel = () => {
 
             {/* Panel body */}
             <div
-                className={`flex flex-col w-full bg-slate-900/95 backdrop-blur-sm border-l border-slate-700/60
+                className={`flex flex-col w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-l border-slate-200 dark:border-slate-700/60
                             overflow-hidden transition-opacity duration-300 ${
                                 collapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
                             }`}
             >
                 {/* ── HEADER ───────────────────────────────────── */}
-                <div className="px-4 pt-3 pb-2 border-b border-slate-700/60 shrink-0">
+                <div className="px-4 pt-3 pb-2 border-b border-slate-200 dark:border-slate-700/60 shrink-0">
                     <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-xs font-semibold tracking-widest text-slate-400 uppercase select-none">
+                        <h2 className="text-xs font-semibold tracking-widest text-slate-500 dark:text-slate-400 uppercase select-none">
                             Kurdistan Air Watch
                         </h2>
-                        <span className="text-[10px] text-slate-600">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-600">
                             {visibleFlights.length} visible
                         </span>
                     </div>
@@ -185,13 +185,13 @@ const SidePanel = () => {
                     {/* Type count dots */}
                     <div className="flex flex-wrap gap-x-3 gap-y-1">
                         {HEADER_TYPES.map((cls) => (
-                            <div key={cls} className="flex items-center gap-1 text-[10px] text-slate-400">
+                            <div key={cls} className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
                                 <span
                                     className="w-2 h-2 rounded-full shrink-0"
                                     style={{ backgroundColor: CLASS_DOT_COLOR[cls] }}
                                 />
                                 {CLASS_LABEL[cls]}
-                                <span className="text-slate-600">
+                                <span className="text-slate-400 dark:text-slate-600">
                                     {typeCounts[cls] ?? 0}
                                 </span>
                             </div>
@@ -217,7 +217,7 @@ const SidePanel = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-600 text-sm">
+                        <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-400 dark:text-slate-600 text-sm">
                             <span className="text-2xl">✈</span>
                             <span>No aircraft in view</span>
                         </div>
@@ -225,8 +225,8 @@ const SidePanel = () => {
                 </div>
 
                 {/* ── FOOTER ───────────────────────────────────── */}
-                <div className="px-4 py-2 border-t border-slate-700/60 shrink-0 flex items-center justify-between">
-                    <span className="text-[10px] text-slate-600">
+                <div className="px-4 py-2 border-t border-slate-200 dark:border-slate-700/60 shrink-0 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-600">
                         Updated: {lastUpdatedStr}
                     </span>
                     <div className="flex items-center gap-1.5 text-[10px]">

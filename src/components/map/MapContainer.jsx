@@ -26,7 +26,12 @@ const MapEvents = () => {
 
 // ── MapContainer ──────────────────────────────────────────────────────────────
 
-const MapContainer = () => {
+const TILE = {
+    dark:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+}
+
+const MapContainer = ({ isDark = true }) => {
     const center = [36.35, 44.2] // Kurdistan Region centroid
     const defaultZoom = 7
     const minZoom = 4
@@ -38,8 +43,11 @@ const MapContainer = () => {
         [42.0, 63.0], // NE — Turkey / Pakistan border
     ]
 
+    const mapBg = isDark ? '#0a0e1a' : '#e8edf2'
+    const tileUrl = isDark ? TILE.dark : TILE.light
+
     return (
-        <div className="relative w-full" style={{ height: '100%', backgroundColor: '#0a0e1a' }}>
+        <div className="relative w-full" style={{ height: '100%', backgroundColor: mapBg }}>
             {/* FilterBar sits over the map using absolute positioning */}
             <FilterBar />
 
@@ -53,10 +61,11 @@ const MapContainer = () => {
                 scrollWheelZoom={true}
                 zoomControl={false}
                 attributionControl={false}
-                style={{ height: '100%', width: '100%', backgroundColor: '#0a0e1a' }}
+                style={{ height: '100%', width: '100%', backgroundColor: mapBg }}
             >
                 <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    key={tileUrl}
+                    url={tileUrl}
                     maxZoom={19}
                 />
 

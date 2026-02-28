@@ -7,10 +7,6 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -27,9 +23,13 @@ body {
   height: 100%;
 }
 
-/* Leaflet container background */
+/* Leaflet container background — dark by default, light when theme toggled */
 .leaflet-container {
   background: #0a0e1a;
+}
+
+html:not(.dark) .leaflet-container {
+  background: #e8edf2;
 }
 
 /* Custom city marker styling */

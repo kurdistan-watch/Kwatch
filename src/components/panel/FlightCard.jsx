@@ -59,14 +59,14 @@ const countryFlag = (country) => {
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 const SectionHeader = ({ label }) => (
-    <div className="text-[9px] font-semibold tracking-widest text-slate-500 uppercase mb-1 mt-3 first:mt-0 select-none">
+    <div className="text-[9px] font-semibold tracking-widest text-slate-400 dark:text-slate-500 uppercase mb-1 mt-3 first:mt-0 select-none">
         {label}
     </div>
 )
 
-const Row = ({ label, value, valueClass = 'text-slate-200' }) => (
-    <div className="flex justify-between items-baseline text-xs py-[3px] border-b border-slate-800/60 last:border-0">
-        <span className="text-slate-500 shrink-0 mr-2">{label}</span>
+const Row = ({ label, value, valueClass = 'text-slate-700 dark:text-slate-200' }) => (
+    <div className="flex justify-between items-baseline text-xs py-[3px] border-b border-slate-200/80 dark:border-slate-800/60 last:border-0">
+        <span className="text-slate-400 dark:text-slate-500 shrink-0 mr-2">{label}</span>
         <span className={`font-medium text-right ${valueClass}`}>{value}</span>
     </div>
 )
@@ -146,13 +146,13 @@ const FlightCard = ({ flight }) => {
     const badgeClass = CLASS_BADGE[flight.classification] ?? CLASS_BADGE.UNCLASSIFIED
 
     return (
-        <div className="text-sm text-slate-300 relative pb-2">
+        <div className="text-sm text-slate-700 dark:text-slate-300 relative pb-2">
 
             {/* Close / deselect */}
             <button
                 onClick={() => selectFlight(flight.icao24)}
                 title="Deselect aircraft"
-                className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center rounded text-slate-500 hover:text-slate-200 hover:bg-slate-700/60 transition-colors text-base leading-none"
+                className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center rounded text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors text-base leading-none"
             >
                 ✕
             </button>
@@ -162,7 +162,7 @@ const FlightCard = ({ flight }) => {
 
             {/* Aircraft photo */}
             {photoLoading ? (
-                <div className="w-full h-28 mb-2 rounded bg-slate-800/60 animate-pulse flex items-center justify-center text-slate-600 text-xs">
+                <div className="w-full h-28 mb-2 rounded bg-slate-200 dark:bg-slate-800/60 animate-pulse flex items-center justify-center text-slate-400 dark:text-slate-600 text-xs">
                     Loading photo…
                 </div>
             ) : photo ? (
@@ -171,7 +171,7 @@ const FlightCard = ({ flight }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     title={`Photo by ${photo.photographer} · Planespotters.net`}
-                    className="block w-full mb-2 rounded overflow-hidden border border-slate-700/50 hover:border-yellow-500/50 transition-colors group"
+                    className="block w-full mb-2 rounded overflow-hidden border border-slate-300/60 dark:border-slate-700/50 hover:border-yellow-500/50 transition-colors group"
                 >
                     <img
                         src={photo.src}
@@ -179,25 +179,25 @@ const FlightCard = ({ flight }) => {
                         className="w-full object-cover max-h-36 group-hover:opacity-90 transition-opacity"
                         loading="lazy"
                     />
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-slate-900/80 text-[9px] text-slate-500">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-slate-100/80 dark:bg-slate-900/80 text-[9px] text-slate-500">
                         <span>📷</span>
                         <span className="truncate">{photo.photographer}</span>
                         <span className="ml-auto shrink-0 opacity-60">Planespotters.net</span>
                     </div>
                 </a>
             ) : (
-                <div className="w-full mb-2 py-2 rounded bg-slate-800/30 border border-slate-700/30 flex items-center justify-center text-slate-600 text-[10px]">
+                <div className="w-full mb-2 py-2 rounded bg-slate-100/60 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-700/30 flex items-center justify-center text-slate-400 dark:text-slate-600 text-[10px]">
                     No photo on record
                 </div>
             )}
             <Row
                 label="Callsign"
-                value={flight.callsign || <span className="text-slate-600 italic">Unknown</span>}
-                valueClass="text-yellow-300 font-bold"
+                value={flight.callsign || <span className="text-slate-400 dark:text-slate-600 italic">Unknown</span>}
+                valueClass="text-yellow-600 dark:text-yellow-300 font-bold"
             />
             <Row
                 label="ICAO24"
-                value={<span className="font-mono text-slate-300">{flight.icao24}</span>}
+                value={<span className="font-mono text-slate-600 dark:text-slate-300">{flight.icao24}</span>}
             />
             <Row
                 label="Origin"
@@ -250,7 +250,7 @@ const FlightCard = ({ flight }) => {
                 />
                 {flight.classification ?? 'UNCLASSIFIED'}
             </div>
-            <div className="text-[10px] text-slate-500 mt-1 mb-0.5">
+            <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 mb-0.5">
                 Threat Level&nbsp;{flight.threatLevel ?? 0}&nbsp;/ 4
             </div>
             <ThreatBar level={flight.threatLevel ?? 0} />
@@ -275,13 +275,13 @@ const FlightCard = ({ flight }) => {
             <div className="flex gap-2 mt-1">
                 <button
                     onClick={handleTrack}
-                    className="flex-1 text-xs py-1.5 px-2 rounded bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-blue-300 hover:text-blue-100 transition-colors"
+                    className="flex-1 text-xs py-1.5 px-2 rounded bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-100 transition-colors"
                 >
                     🎯 Track on Map
                 </button>
                 <button
                     onClick={handleCopy}
-                    className="flex-1 text-xs py-1.5 px-2 rounded bg-slate-700/40 hover:bg-slate-600/40 border border-slate-600/40 text-slate-300 hover:text-slate-100 transition-colors"
+                    className="flex-1 text-xs py-1.5 px-2 rounded bg-slate-200/60 dark:bg-slate-700/40 hover:bg-slate-300/60 dark:hover:bg-slate-600/40 border border-slate-300/60 dark:border-slate-600/40 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-colors"
                 >
                     📋 Copy Details
                 </button>
