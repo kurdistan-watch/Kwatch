@@ -13,19 +13,12 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            // Proxy OAuth2 token endpoint — must be listed FIRST and use a
-            // distinct prefix so it doesn't collide with /api/opensky below.
-            '/auth/opensky': {
-                target: 'https://auth.opensky-network.org',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/auth\/opensky/, ''),
-                secure: true,
-            },
-            // Proxy OpenSky REST API calls
+            // In dev mode, proxy /api/opensky to the real OpenSky REST endpoint.
+            // In production, Vercel serverless function handles this route.
             '/api/opensky': {
                 target: 'https://opensky-network.org',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api\/opensky/, '/api'),
+                rewrite: (path) => path.replace(/^\/api\/opensky/, '/api/states/all'),
                 secure: true,
             },
             // Proxy Planespotters photo API — avoids browser CORS block

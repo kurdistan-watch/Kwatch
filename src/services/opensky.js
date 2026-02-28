@@ -1,13 +1,16 @@
 import axios from 'axios'
 
-// ─── Axios instance (declared first — used by auth + fetch below) ─────────────
-// All requests go through Vite's dev-server proxy to avoid browser CORS blocks.
+// ─── Axios instance ──────────────────────────────────────────────────────────
+// In production, requests hit Vercel serverless functions at /api/opensky and
+// /api/planespotters. In dev, Vite's dev-server proxy forwards these to the
+// real upstream APIs. Auth is handled server-side in both cases.
 const api = axios.create({ timeout: 15_000 })
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const BASE_URL  = '/api/opensky/states/all'
-const TOKEN_URL = '/auth/opensky/auth/realms/opensky-network/protocol/openid-connect/token'
+// In production this hits the Vercel serverless function (api/opensky.js).
+// In dev this hits Vite's proxy → https://opensky-network.org/api/states/all.
+const BASE_URL = '/api/opensky'
 
 /**
  * MENA + surrounding region bounding box
@@ -48,67 +51,6 @@ const F = {
 
 // ─── Module-level last-known state cache ──────────────────────────────────────
 let _lastKnownFlights = []
-
-// ─── Auth ─────────────────────────────────────────────────────────────────────
-
-let _accessToken     = null
-let _tokenExpiresAt  = 0  // Unix ms
-
-/**
- * Fetches a fresh OAuth2 Bearer token using client_credentials grant.
- * Caches the token until it expires (minus a 30s safety buffer).
- * Falls back to anonymous (no header) if credentials are missing or the
- * token request fails.
- */
-const _getAccessToken = async () => {
-    const clientId     = import.meta.env.VITE_OPENSKY_USERNAME
-    const clientSecret = import.meta.env.VITE_OPENSKY_PASSWORD
-
-    if (!clientId || !clientSecret) {
-        console.warn('[opensky] No credentials in .env — using anonymous access')
-        return null
-    }
-
-    // Return cached token if still valid
-    if (_accessToken && Date.now() < _tokenExpiresAt) {
-        console.debug('[opensky] Using cached token')
-        return _accessToken
-    }
-
-    console.info('[opensky] Fetching new OAuth2 token for client_id:', clientId)
-    try {
-        const body = new URLSearchParams({
-            grant_type:    'client_credentials',
-            client_id:     clientId,
-            client_secret: clientSecret,
-        })
-
-        const resp = await api.post(TOKEN_URL, body.toString(), {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        })
-
-        _accessToken    = resp.data.access_token
-        const expiresIn = resp.data.expires_in ?? 300
-        _tokenExpiresAt = Date.now() + (expiresIn - 30) * 1000
-
-        console.info(`[opensky] ✅ Token obtained — expires in ${expiresIn}s, length ${_accessToken?.length}`)
-        return _accessToken
-    } catch (err) {
-        const status = err?.response?.status
-        const detail = err?.response?.data ?? err.message
-        console.error(`[opensky] ❌ Token fetch FAILED (HTTP ${status})`, detail)
-        return null
-    }
-}
-
-/**
- * Builds the Authorization header.
- * Uses Bearer token if available, otherwise anonymous (empty object).
- */
-const _buildAuthHeader = async () => {
-    const token = await _getAccessToken()
-    return token ? { Authorization: `Bearer ${token}` } : {}
-}
 
 // ─── Normalisation ────────────────────────────────────────────────────────────
 
@@ -180,14 +122,13 @@ export const fetchFlights = async () => {
     }
 
     try {
-        const authHeader = await _buildAuthHeader()
-        const isAuth = !!authHeader.Authorization
-        console.info(`[opensky] Fetching flights — auth: ${isAuth ? '✅ Bearer' : '⚠️ anonymous'}, url: ${BASE_URL}`)
+        // Auth is handled server-side by the Vercel serverless function (api/opensky.js).
+        // In dev mode, Vite's proxy forwards to OpenSky directly (no auth in dev).
+        console.info(`[opensky] Fetching flights — url: ${BASE_URL}`)
 
         const data = await withRetry(async () => {
             const resp = await api.get(BASE_URL, {
-                params:  BBOX,
-                headers: authHeader,
+                params: BBOX,
             })
             console.info(`[opensky] API response: HTTP ${resp.status}, states: ${resp.data?.states?.length ?? 'null'}`)
             return resp.data
