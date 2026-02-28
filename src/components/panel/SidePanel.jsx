@@ -175,7 +175,7 @@ const SidePanel = () => {
                 <div className="px-4 pt-3 pb-2 border-b border-slate-200 dark:border-slate-700/60 shrink-0">
                     <div className="flex items-center justify-between mb-2">
                         <h2 className="text-xs font-semibold tracking-widest text-slate-500 dark:text-slate-400 uppercase select-none">
-                            Kurdistan Air Watch
+                            Kurdistan Watch
                         </h2>
                         <span className="text-[10px] text-slate-400 dark:text-slate-600">
                             {visibleFlights.length} visible

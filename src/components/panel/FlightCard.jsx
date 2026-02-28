@@ -250,10 +250,6 @@ const FlightCard = ({ flight }) => {
                 />
                 {flight.classification ?? 'UNCLASSIFIED'}
             </div>
-            <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 mb-0.5">
-                Threat Level&nbsp;{flight.threatLevel ?? 0}&nbsp;/ 4
-            </div>
-            <ThreatBar level={flight.threatLevel ?? 0} />
 
             {/* ── 5. SIGNAL ────────────────────────────────── */}
             <SectionHeader label="Signal" />

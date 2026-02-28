@@ -8,7 +8,7 @@ const StatusBar = ({ isDark, onToggleTheme }) => {
     return (
         <div className="bg-slate-900 dark:bg-slate-900 text-white px-4 py-2 flex justify-between items-center text-sm border-b border-slate-700/50 dark:border-slate-700/50">
             <div className="flex items-center gap-4">
-                <span className="font-bold tracking-tight">KURDISTAN AIR WATCH</span>
+                <span className="font-bold tracking-tight">KURDISTAN WATCH</span>
                 <AlertBadge count={alertCount} />
             </div>
             <div className="flex gap-4 items-center">
