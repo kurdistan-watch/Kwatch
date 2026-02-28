@@ -28,6 +28,13 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/api\/opensky/, '/api'),
                 secure: true,
             },
+            // Proxy Planespotters photo API — avoids browser CORS block
+            '/api/planespotters': {
+                target: 'https://api.planespotters.net',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api\/planespotters/, ''),
+                secure: true,
+            },
         },
     },
 })

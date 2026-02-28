@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useEffect, useState } from 'react'
 import useFlightStore from '@/store/useFlightStore'
+import { fetchAircraftPhoto } from '@/services/opensky'
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -105,6 +106,18 @@ const FlightCard = ({ flight }) => {
     const signalLost = secsSince != null && secsSince > 120
     const signalWarn = secsSince != null && secsSince > 60 && !signalLost
 
+    // ── Aircraft photo ───────────────────────────────────────────────────────
+    const [photo, setPhoto]           = useState(null)
+    const [photoLoading, setPhotoLoading] = useState(true)
+    useEffect(() => {
+        setPhoto(null)
+        setPhotoLoading(true)
+        fetchAircraftPhoto(flight.icao24).then((p) => {
+            setPhoto(p)
+            setPhotoLoading(false)
+        })
+    }, [flight.icao24])
+
     const handleTrack = useCallback(() => {
         window.dispatchEvent(
             new CustomEvent('kwatch:center-aircraft', {
@@ -146,6 +159,37 @@ const FlightCard = ({ flight }) => {
 
             {/* ── 1. IDENTITY ──────────────────────────────── */}
             <SectionHeader label="Identity" />
+
+            {/* Aircraft photo */}
+            {photoLoading ? (
+                <div className="w-full h-28 mb-2 rounded bg-slate-800/60 animate-pulse flex items-center justify-center text-slate-600 text-xs">
+                    Loading photo…
+                </div>
+            ) : photo ? (
+                <a
+                    href={photo.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Photo by ${photo.photographer} · Planespotters.net`}
+                    className="block w-full mb-2 rounded overflow-hidden border border-slate-700/50 hover:border-yellow-500/50 transition-colors group"
+                >
+                    <img
+                        src={photo.src}
+                        alt={`${flight.callsign?.trim() || flight.icao24}`}
+                        className="w-full object-cover max-h-36 group-hover:opacity-90 transition-opacity"
+                        loading="lazy"
+                    />
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-slate-900/80 text-[9px] text-slate-500">
+                        <span>📷</span>
+                        <span className="truncate">{photo.photographer}</span>
+                        <span className="ml-auto shrink-0 opacity-60">Planespotters.net</span>
+                    </div>
+                </a>
+            ) : (
+                <div className="w-full mb-2 py-2 rounded bg-slate-800/30 border border-slate-700/30 flex items-center justify-center text-slate-600 text-[10px]">
+                    No photo on record
+                </div>
+            )}
             <Row
                 label="Callsign"
                 value={flight.callsign || <span className="text-slate-600 italic">Unknown</span>}

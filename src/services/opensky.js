@@ -218,3 +218,43 @@ export const fetchFlights = async () => {
         return _lastKnownFlights
     }
 }
+
+// ─── Aircraft photo (Planespotters.net) ───────────────────────────────────────
+
+/** In-memory cache: icao24 → { src, link, photographer } | null */
+const _photoCache = new Map()
+
+/**
+ * Fetches the best available photo for an aircraft by ICAO24 hex.
+ * Uses the free Planespotters.net public photo API (no key required).
+ * Results are cached in memory for the lifetime of the page.
+ *
+ * @param {string} icao24 — hex string (any case)
+ * @returns {Promise<{ src: string, link: string, photographer: string } | null>}
+ */
+export const fetchAircraftPhoto = async (icao24) => {
+    if (!icao24) return null
+    const key = icao24.toLowerCase()
+
+    if (_photoCache.has(key)) return _photoCache.get(key)
+
+    try {
+        const res = await fetch(`/api/planespotters/pub/photos/hex/${key}`)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json()
+        const photo = data?.photos?.[0] ?? null
+        const result = photo
+            ? {
+                  src:          photo.thumbnail_large?.src ?? photo.thumbnail?.src,
+                  link:         photo.link,
+                  photographer: photo.photographer,
+              }
+            : null
+        _photoCache.set(key, result)
+        return result
+    } catch (e) {
+        console.warn('[photo] Failed to fetch photo for', icao24, e.message)
+        _photoCache.set(key, null)
+        return null
+    }
+}
