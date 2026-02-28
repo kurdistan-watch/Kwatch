@@ -1,36 +1,45 @@
 import MapContainer from '@/components/map/MapContainer'
 import SidePanel from '@/components/panel/SidePanel'
+import NewsPanel from '@/components/panel/NewsPanel'
 import AlertBadge from '@/components/ui/AlertBadge'
 import StatusBar from '@/components/ui/StatusBar'
 import { useFlightPoll } from '@/hooks/useFlightPoll'
+import { useNewsPoll } from '@/hooks/useNewsPoll'
 import { useTheme } from '@/hooks/useTheme'
 
-// Mount polling at the top level so it never stops regardless of panel state
-const PollingRoot = () => {
+// Mount flight polling at the top level so it never stops
+const FlightPollingRoot = () => {
     useFlightPoll()
     return null
 }
 
 function App() {
     const { isDark, toggle } = useTheme()
+    const { loading: newsLoading, lastUpdated: newsLastUpdated } = useNewsPoll()
 
     return (
         <div
             className="flex flex-col text-slate-100 dark:text-slate-100 bg-slate-100 dark:bg-[#0a0e1a]"
             style={{ height: '100dvh', overflow: 'hidden' }}
         >
-            <PollingRoot />
+            <FlightPollingRoot />
 
             {/* Status bar — fixed height */}
             <header className="shrink-0 z-20">
                 <StatusBar isDark={isDark} onToggleTheme={toggle} />
             </header>
 
-            {/* Map area fills all remaining space */}
-            <main className="flex-1 relative" style={{ minHeight: 0 }}>
-                <MapContainer isDark={isDark} />
-                <SidePanel />
-                <AlertBadge />
+            {/* Three-column layout: NewsPanel | Map | SidePanel */}
+            <main className="flex-1 flex relative" style={{ minHeight: 0 }}>
+                {/* Left — News panel (280px, collapses on small screens) */}
+                <NewsPanel loading={newsLoading} lastUpdated={newsLastUpdated} />
+
+                {/* Center — Map fills remaining space */}
+                <div className="flex-1 relative" style={{ minWidth: 0 }}>
+                    <MapContainer isDark={isDark} />
+                    <SidePanel />
+                    <AlertBadge />
+                </div>
             </main>
         </div>
     )

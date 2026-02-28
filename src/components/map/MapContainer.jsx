@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { MapContainer as LeafletMap, TileLayer, ZoomControl, useMap } from 'react-leaflet'
 import AircraftLayer from './AircraftLayer'
+import NewsMarkerLayer from './NewsMarkerLayer'
 import ZoneBoundary from './ZoneBoundary'
 import FilterBar from '@/components/panel/FilterBar'
 import 'leaflet/dist/leaflet.css'
@@ -19,6 +20,18 @@ const MapEvents = () => {
         }
         window.addEventListener('kwatch:center-aircraft', handler)
         return () => window.removeEventListener('kwatch:center-aircraft', handler)
+    }, [map])
+
+    // News center event — fly to news location at zoom 8
+    useEffect(() => {
+        const handler = (e) => {
+            const { lat, lng } = e.detail
+            if (lat != null && lng != null) {
+                map.flyTo([lat, lng], Math.max(map.getZoom(), 8), { duration: 1.2 })
+            }
+        }
+        window.addEventListener('kwatch:center-news', handler)
+        return () => window.removeEventListener('kwatch:center-news', handler)
     }, [map])
 
     return null
@@ -73,6 +86,7 @@ const MapContainer = ({ isDark = true }) => {
 
                 <ZoneBoundary />
                 <AircraftLayer />
+                <NewsMarkerLayer />
                 <MapEvents />
             </LeafletMap>
         </div>

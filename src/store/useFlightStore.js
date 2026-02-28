@@ -28,9 +28,14 @@ const useFlightStore = create((set) => ({
         commercial: true,
         unknown: true,
         military: true,
+        news: true,
     },
 
     alerts: [],
+
+    // ── News state ─────────────────────────────────────────────────────────
+    news: [],
+    selectedNews: null,
 
     // ── Actions ────────────────────────────────────────────────────────────
 
@@ -40,6 +45,23 @@ const useFlightStore = create((set) => ({
      * @param {Array} flights  Normalised flight objects.
      */
     setFlights: (flights) => set({ flights }),
+
+    /**
+     * Replace the full news list (called by the news polling hook).
+     * @param {Array} items  Geo-enriched news items.
+     */
+    setNews: (items) => set({ news: items }),
+
+    /**
+     * Select a news item by its id.
+     * @param {string} id  The news item UUID.
+     */
+    selectNews: (id) => set({ selectedNews: id }),
+
+    /**
+     * Clear the currently selected news item.
+     */
+    clearSelectedNews: () => set({ selectedNews: null }),
 
     /**
      * Select or deselect an aircraft by its ICAO-24 address.

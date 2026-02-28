@@ -33,6 +33,7 @@ const FilterBar = () => {
     const flights      = useFlightStore((s) => s.flights)
     const filters      = useFlightStore((s) => s.filters)
     const toggleFilter = useFlightStore((s) => s.toggleFilter)
+    const newsCount    = useFlightStore((s) => s.news.length)
 
     // Count how many visible (unfiltered) aircraft exist for each type
     const counts = useMemo(() => {
@@ -44,6 +45,8 @@ const FilterBar = () => {
         }
         return c
     }, [flights])
+
+    const newsActive = filters.news !== false
 
     return (
         <div className="absolute top-3 left-3 z-[999] flex flex-col gap-1.5">
@@ -57,7 +60,7 @@ const FilterBar = () => {
                         title={`${active ? 'Hide' : 'Show'} ${label}`}
                         style={{
                             borderColor: color,
-                            backgroundColor: active ? `${color}26` : 'transparent',   // ~15% opacity fill
+                            backgroundColor: active ? `${color}26` : 'transparent',
                             color: active ? color : '#6B7280',
                         }}
                         className={`
@@ -87,6 +90,41 @@ const FilterBar = () => {
                     </button>
                 )
             })}
+
+            {/* News toggle */}
+            <button
+                onClick={() => toggleFilter('news')}
+                title={`${newsActive ? 'Hide' : 'Show'} News`}
+                style={{
+                    borderColor: '#f5c518',
+                    backgroundColor: newsActive ? '#f5c51826' : 'transparent',
+                    color: newsActive ? '#f5c518' : '#6B7280',
+                }}
+                className={`
+                    flex items-center gap-1.5
+                    px-2.5 py-1 rounded
+                    border
+                    text-xs font-medium
+                    backdrop-blur-sm
+                    transition-all duration-150
+                    select-none
+                    hover:opacity-100
+                    ${newsActive ? 'opacity-95' : 'opacity-60 hover:opacity-80'}
+                `}
+            >
+                <span className="text-[11px] leading-none">📰</span>
+                <span className="leading-none">News</span>
+                <span
+                    className={`ml-1 min-w-[16px] text-center rounded-full text-[10px] font-bold leading-none py-0.5 px-1
+                        ${newsActive ? '' : 'bg-slate-200 dark:bg-slate-800'}`}
+                    style={{
+                        backgroundColor: newsActive ? '#f5c51833' : undefined,
+                        color: newsActive ? '#f5c518' : '#6B7280',
+                    }}
+                >
+                    {newsCount}
+                </span>
+            </button>
         </div>
     )
 }

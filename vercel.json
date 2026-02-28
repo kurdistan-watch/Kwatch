@@ -9,6 +9,10 @@
             "destination": "/api/opensky"
         },
         {
+            "source": "/api/news",
+            "destination": "/api/news"
+        },
+        {
             "source": "/api/planespotters/:path*",
             "destination": "/api/planespotters/:path*"
         }

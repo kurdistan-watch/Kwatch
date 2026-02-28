@@ -28,6 +28,9 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/api\/planespotters/, ''),
                 secure: true,
             },
+            // /api/news is handled by the Vercel serverless function (api/news.js)
+            // via `vercel dev`. No Vite proxy needed — the function does
+            // XML fetch + parse + JSON response internally.
         },
     },
 })
