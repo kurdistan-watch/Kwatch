@@ -14,7 +14,7 @@ const ZoneBoundary = () => {
 
     const borderStyle = () => ({
         color: '#f5c518',
-        weight: 1.5,
+        weight: 3.0,
         fillOpacity: 0,
         dashArray: '5,6',
         opacity: 0.7,
