@@ -5,11 +5,14 @@ import L from 'leaflet'
 // ── Zone definitions ──────────────────────────────────────────────────────────
 
 const ZONES = [
-    { id: 'makhmur',   file: '/MakhmurGeo.json',    label: 'Makhmur',        flip: true  },
-    { id: 'kirkukPDK', file: '/KirkukPDKGeo.json',  label: 'Kirkuk (PDK)',   flip: true  },
-    { id: 'kirkukPUK', file: '/KirkukPUKGeo.json',  label: 'Kirkuk (PUK)',   flip: true  },
-    { id: 'neinewa',   file: '/NeinewaGeo.json',     label: 'Neinewa',        flip: true, safe: true },
-    { id: 'neinewa2',  file: '/Neinewa2Geo.json',    label: 'Neinewa (East)', flip: true  },
+    { id: 'makhmur',    file: '/MakhmurGeo.json',       label: 'Makhmur',          flip: true  },
+    { id: 'kirkukPDK',  file: '/KirkukPDKGeo.json',     label: 'Kirkuk (PDK)',      flip: true  },
+    { id: 'kirkukPUK',  file: '/KirkukPUKGeo.json',     label: 'Kirkuk (PUK)',      flip: true  },
+    { id: 'kirkukPUK2', file: '/KirkukPUK2Geo.json',    label: 'Kirkuk (PUK 2)',    flip: true  },
+    { id: 'salahaddin', file: '/SalahadinPUKGeo.json',  label: 'Salahaddin (PUK)',  flip: true  },
+    { id: 'diyala',     file: '/DiyalaPUKGeo.json',     label: 'Diyala (PUK)',      flip: true, safe: true },
+    { id: 'neinewa',    file: '/NeinewaGeo.json',        label: 'Neinewa',           flip: true, safe: true },
+    { id: 'neinewa2',   file: '/Neinewa2Geo.json',       label: 'Neinewa (East)',    flip: true  },
 ]
 
 // ── Styles ────────────────────────────────────────────────────────────────────

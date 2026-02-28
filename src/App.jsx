@@ -1,5 +1,6 @@
 import MapContainer from '@/components/map/MapContainer'
 import SidePanel from '@/components/panel/SidePanel'
+import AlertBadge from '@/components/ui/AlertBadge'
 import StatusBar from '@/components/ui/StatusBar'
 import { useFlightPoll } from '@/hooks/useFlightPoll'
 import { useTheme } from '@/hooks/useTheme'
@@ -29,6 +30,7 @@ function App() {
             <main className="flex-1 relative" style={{ minHeight: 0 }}>
                 <MapContainer isDark={isDark} />
                 <SidePanel />
+                <AlertBadge />
             </main>
         </div>
     )

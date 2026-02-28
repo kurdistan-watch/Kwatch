@@ -74,6 +74,19 @@ const useFlightStore = create((set) => ({
         })),
 
     /**
+     * Mark a single alert as acknowledged by its id.
+     * The alert remains in the array (for history) but its
+     * `acknowledged` flag is set to true so the UI can hide it.
+     * @param {string} id  The alert's UUID.
+     */
+    acknowledgeAlert: (id) =>
+        set((state) => ({
+            alerts: state.alerts.map((a) =>
+                a.id === id ? { ...a, acknowledged: true } : a
+            ),
+        })),
+
+    /**
      * Wipe all queued alerts.
      */
     clearAlerts: () => set({ alerts: [] }),
