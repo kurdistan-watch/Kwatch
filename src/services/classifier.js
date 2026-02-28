@@ -2,9 +2,9 @@
 // classifier.js — Pure-function flight classification engine (zero deps)
 //
 // Three classifications in priority order:
-//   1. UNKNOWN    (red)    — missing / suspicious data
-//   2. MILITARY   (orange) — known mil callsigns, hex blocks, origin country
-//   3. COMMERCIAL (blue)   — everything else
+//   1. UNKNOWN    (bright blue) — missing / incomplete data
+//   2. MILITARY   (orange)      — known mil callsigns, hex blocks, origin country
+//   3. COMMERCIAL (blue)        — everything else
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Classification constants ────────────────────────────────────────────────
@@ -16,7 +16,7 @@ const CLASSIFICATIONS = {
 };
 
 const COLORS = {
-  UNKNOWN:    '#EF4444', // red-500
+  UNKNOWN:    '#38BDF8', // sky-400 bright blue
   MILITARY:   '#F97316', // orange-500
   COMMERCIAL: '#3B82F6', // blue-500
 };

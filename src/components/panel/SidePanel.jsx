@@ -7,13 +7,13 @@ import FlightCard from './FlightCard'
 const CLASS_DOT_COLOR = {
     COMMERCIAL: '#3B82F6',
     MILITARY:   '#F97316',
-    UNKNOWN:    '#EF4444',
+    UNKNOWN:    '#38BDF8',
 }
 
 const CLASS_LABEL = {
     COMMERCIAL: 'Commercial',
-    MILITARY:   'Military',
-    UNKNOWN:    'Unknown',
+    MILITARY:   'Potential Military',
+    UNKNOWN:    'Some Data Missing',
 }
 
 const HEADER_TYPES = ['COMMERCIAL', 'MILITARY', 'UNKNOWN']

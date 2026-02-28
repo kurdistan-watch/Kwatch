@@ -13,14 +13,14 @@ const FILTER_BUTTONS = [
     },
     {
         key:            'unknown',
-        label:          'Unknown',
+        label:          'Some Data Missing',
         icon:           '?',
-        color:          '#EF4444',
+        color:          '#38BDF8',
         classification: 'UNKNOWN',
     },
     {
         key:            'military',
-        label:          'Military',
+        label:          'Potential Military',
         icon:           '⚔',
         color:          '#F97316',
         classification: 'MILITARY',

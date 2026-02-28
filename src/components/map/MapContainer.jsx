@@ -69,7 +69,7 @@ const MapContainer = ({ isDark = true }) => {
                     maxZoom={19}
                 />
 
-                <ZoomControl position="bottomright" />
+                <ZoomControl position="bottomleft" />
 
                 <ZoneBoundary />
                 <AircraftLayer />
