@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { MapContainer as LeafletMap, TileLayer, ZoomControl, useMap } from 'react-leaflet'
 import AircraftLayer from './AircraftLayer'
 import NewsMarkerLayer from './NewsMarkerLayer'
+import FlashMarkerLayer from './FlashMarkerLayer'
 import ZoneBoundary from './ZoneBoundary'
 import FilterBar from '@/components/panel/FilterBar'
 import 'leaflet/dist/leaflet.css'
@@ -87,6 +88,7 @@ const MapContainer = ({ isDark = true }) => {
                 <ZoneBoundary />
                 <AircraftLayer />
                 <NewsMarkerLayer />
+                <FlashMarkerLayer />
                 <MapEvents />
             </LeafletMap>
         </div>

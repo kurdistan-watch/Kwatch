@@ -5,6 +5,7 @@ import AlertBadge from '@/components/ui/AlertBadge'
 import StatusBar from '@/components/ui/StatusBar'
 import { useFlightPoll } from '@/hooks/useFlightPoll'
 import { useNewsPoll } from '@/hooks/useNewsPoll'
+import { useFlashPoll } from '@/hooks/useFlashPoll'
 import { useTheme } from '@/hooks/useTheme'
 
 // Mount flight polling at the top level so it never stops
@@ -16,6 +17,7 @@ const FlightPollingRoot = () => {
 function App() {
     const { isDark, toggle } = useTheme()
     const { loading: newsLoading, lastUpdated: newsLastUpdated } = useNewsPoll()
+    const { loading: flashLoading } = useFlashPoll()
 
     return (
         <div
@@ -32,7 +34,7 @@ function App() {
             {/* Three-column layout: NewsPanel | Map | SidePanel */}
             <main className="flex-1 flex relative" style={{ minHeight: 0 }}>
                 {/* Left — News panel (280px, collapses on small screens) */}
-                <NewsPanel loading={newsLoading} lastUpdated={newsLastUpdated} />
+                <NewsPanel loading={newsLoading} lastUpdated={newsLastUpdated} flashLoading={flashLoading} />
 
                 {/* Center — Map fills remaining space */}
                 <div className="flex-1 relative" style={{ minWidth: 0 }}>

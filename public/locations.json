@@ -1,0 +1,148 @@
+{
+  "_comment": "Geo-location dictionary for the Kwatch news matcher. Tiers are matched in order (1→5), first hit wins. Within each tier, entries are matched top-to-bottom, so place more-specific patterns before broader ones.",
+
+  "tiers": [
+    {
+      "name": "Kurdistan Region",
+      "description": "Gas fields, dams, mountains, towns, airports, major cities — most precise pins",
+      "locations": [
+        { "patterns": ["khor mor", "khormal"],                            "lat": 35.302, "lng": 45.055, "locationName": "Khor Mor Gas Field" },
+        { "patterns": ["khurmala"],                                       "lat": 35.515, "lng": 44.282, "locationName": "Khurmala Dome" },
+        { "patterns": ["taq taq", "taqtaq"],                              "lat": 35.614, "lng": 44.592, "locationName": "Taq Taq Oil Field" },
+        { "patterns": ["tawke"],                                          "lat": 37.055, "lng": 43.133, "locationName": "Tawke Oil Field" },
+        { "patterns": ["shaikan"],                                        "lat": 36.830, "lng": 43.360, "locationName": "Shaikan Oil Field" },
+
+        { "patterns": ["dukan dam", "dokan dam", "lake dukan", "lake dokan"], "lat": 35.955, "lng": 44.955, "locationName": "Dukan Dam" },
+        { "patterns": ["darbandikhan", "darbandixan"],                    "lat": 35.112, "lng": 45.694, "locationName": "Darbandikhan Dam" },
+        { "patterns": ["mosul dam"],                                      "lat": 36.631, "lng": 42.823, "locationName": "Mosul Dam" },
+
+        { "patterns": ["qandil", "kandil"],                               "lat": 36.530, "lng": 45.150, "locationName": "Qandil Mountains" },
+        { "patterns": ["halgurd"],                                        "lat": 36.727, "lng": 44.862, "locationName": "Mt. Halgurd" },
+        { "patterns": ["bradost"],                                        "lat": 36.730, "lng": 44.540, "locationName": "Bradost" },
+        { "patterns": ["choman"],                                         "lat": 36.627, "lng": 44.884, "locationName": "Choman" },
+
+        { "patterns": ["qayyarah", "gayara"],                             "lat": 35.772, "lng": 43.286, "locationName": "Qayyarah Airbase" },
+        { "patterns": ["harir"],                                          "lat": 36.548, "lng": 44.364, "locationName": "Harir Airbase" },
+
+        { "patterns": ["chamchamal"],                                     "lat": 35.532, "lng": 44.830, "locationName": "Chamchamal" },
+        { "patterns": ["ranya", "rania"],                                 "lat": 36.253, "lng": 44.883, "locationName": "Ranya" },
+        { "patterns": ["dukan", "dokan"],                                 "lat": 35.955, "lng": 44.950, "locationName": "Dukan" },
+        { "patterns": ["kalar"],                                          "lat": 34.630, "lng": 45.319, "locationName": "Kalar" },
+        { "patterns": ["koysinjaq", "koya"],                              "lat": 36.083, "lng": 44.633, "locationName": "Koya" },
+        { "patterns": ["shaqlawa"],                                       "lat": 36.406, "lng": 44.322, "locationName": "Shaqlawa" },
+        { "patterns": ["pirmam"],                                         "lat": 36.389, "lng": 44.179, "locationName": "Pirmam" },
+        { "patterns": ["soran"],                                          "lat": 36.653, "lng": 44.545, "locationName": "Soran" },
+        { "patterns": ["mergasur"],                                       "lat": 36.843, "lng": 44.302, "locationName": "Mergasur" },
+        { "patterns": ["barzan", "barzani village"],                      "lat": 36.916, "lng": 44.063, "locationName": "Barzan" },
+        { "patterns": ["akre", "aqrah"],                                  "lat": 36.742, "lng": 43.891, "locationName": "Akre" },
+        { "patterns": ["semel"],                                          "lat": 36.875, "lng": 42.855, "locationName": "Semel" },
+        { "patterns": ["mangesh"],                                        "lat": 36.752, "lng": 43.094, "locationName": "Mangesh" },
+        { "patterns": ["shaladize", "sheladize"],                         "lat": 37.016, "lng": 43.300, "locationName": "Shaladize" },
+        { "patterns": ["rawanduz", "rawandiz"],                           "lat": 36.615, "lng": 44.524, "locationName": "Rawanduz" },
+        { "patterns": ["penjwin"],                                        "lat": 35.617, "lng": 45.940, "locationName": "Penjwin" },
+        { "patterns": ["said sadiq", "sayid sadiq"],                      "lat": 35.351, "lng": 45.863, "locationName": "Said Sadiq" },
+        { "patterns": ["sangasar"],                                       "lat": 35.310, "lng": 45.820, "locationName": "Sangasar" },
+        { "patterns": ["tuz khurmatu", "tuz khormato"],                   "lat": 34.880, "lng": 44.641, "locationName": "Tuz Khurmatu" },
+        { "patterns": ["kifri"],                                          "lat": 34.685, "lng": 44.966, "locationName": "Kifri" },
+        { "patterns": ["germiyan"],                                       "lat": 34.700, "lng": 45.100, "locationName": "Germiyan" },
+        { "patterns": ["newroz neighborhood"],                            "lat": 35.480, "lng": 44.380, "locationName": "Newroz, Kirkuk" },
+
+        { "patterns": ["erbil airport", "eia"],                           "lat": 36.237, "lng": 43.963, "locationName": "Erbil Int'l Airport" },
+        { "patterns": ["sulaymaniyah airport", "sia"],                    "lat": 35.562, "lng": 45.318, "locationName": "Sulaymaniyah Airport" },
+
+        { "patterns": ["erbil", "hewlêr", "hewler"],                     "lat": 36.191, "lng": 44.009, "locationName": "Erbil" },
+        { "patterns": ["sulaymaniyah", "slemani"],                        "lat": 35.557, "lng": 45.435, "locationName": "Sulaymaniyah" },
+        { "patterns": ["duhok", "dihok"],                                 "lat": 36.867, "lng": 42.986, "locationName": "Duhok" },
+        { "patterns": ["halabja"],                                        "lat": 35.177, "lng": 45.986, "locationName": "Halabja" },
+        { "patterns": ["zakho"],                                          "lat": 37.143, "lng": 42.685, "locationName": "Zakho" },
+        { "patterns": ["amadiyah", "amadiya"],                            "lat": 37.092, "lng": 43.487, "locationName": "Amadiyah" },
+        { "patterns": ["sinjar", "shingal"],                              "lat": 36.319, "lng": 41.867, "locationName": "Sinjar" },
+        { "patterns": ["kirkuk", "kerkuk"],                               "lat": 35.468, "lng": 44.392, "locationName": "Kirkuk" },
+        { "patterns": ["mosul", "ninewa", "nineveh"],                     "lat": 36.340, "lng": 43.130, "locationName": "Mosul" },
+        { "patterns": ["makhmur"],                                        "lat": 35.775, "lng": 43.589, "locationName": "Makhmur" }
+      ]
+    },
+    {
+      "name": "Iraq",
+      "description": "Broader Iraqi cities, provinces, rivers, and border crossings",
+      "locations": [
+        { "patterns": ["baghdad"],                                        "lat": 33.315, "lng": 44.366, "locationName": "Baghdad" },
+        { "patterns": ["basra", "basrah"],                                "lat": 30.508, "lng": 47.783, "locationName": "Basra" },
+        { "patterns": ["babil", "babylon", "hillah"],                     "lat": 32.461, "lng": 44.421, "locationName": "Babil" },
+        { "patterns": ["tikrit"],                                         "lat": 34.613, "lng": 43.677, "locationName": "Tikrit" },
+        { "patterns": ["samarra"],                                        "lat": 34.197, "lng": 43.875, "locationName": "Samarra" },
+        { "patterns": ["fallujah"],                                       "lat": 33.347, "lng": 43.784, "locationName": "Fallujah" },
+        { "patterns": ["ramadi"],                                         "lat": 33.426, "lng": 43.313, "locationName": "Ramadi" },
+        { "patterns": ["anbar"],                                          "lat": 33.380, "lng": 43.300, "locationName": "Anbar" },
+        { "patterns": ["najaf"],                                          "lat": 31.996, "lng": 44.335, "locationName": "Najaf" },
+        { "patterns": ["karbala"],                                        "lat": 32.616, "lng": 44.024, "locationName": "Karbala" },
+        { "patterns": ["al-qaim", "al qaim"],                             "lat": 34.376, "lng": 41.066, "locationName": "Al-Qaim" },
+        { "patterns": ["siniyah", "baiji"],                               "lat": 34.938, "lng": 43.493, "locationName": "Baiji" },
+        { "patterns": ["rabia border", "rabia crossing"],                 "lat": 36.797, "lng": 42.091, "locationName": "Rabia Border Crossing" },
+        { "patterns": ["tigris"],                                         "lat": 33.350, "lng": 44.400, "locationName": "Tigris River, Iraq" },
+        { "patterns": ["euphrates"],                                      "lat": 33.350, "lng": 44.200, "locationName": "Euphrates River, Iraq" }
+      ]
+    },
+    {
+      "name": "Regional",
+      "description": "Neighboring countries and cities. Specific cities listed before broader country patterns so they match first. Countries pin to their capital.",
+      "locations": [
+        { "patterns": ["qamishli", "qamishlo"],                           "lat": 37.053, "lng": 41.226, "locationName": "Qamishli" },
+        { "patterns": ["rojava", "northeast syria"],                      "lat": 36.800, "lng": 41.000, "locationName": "Rojava" },
+        { "patterns": ["hasaka", "hasakah"],                              "lat": 36.500, "lng": 40.750, "locationName": "Hasaka" },
+        { "patterns": ["kobani", "kobane", "ayn al-arab"],                "lat": 36.890, "lng": 38.356, "locationName": "Kobani" },
+        { "patterns": ["afrin"],                                          "lat": 36.512, "lng": 36.868, "locationName": "Afrin" },
+        { "patterns": ["damascus"],                                       "lat": 33.513, "lng": 36.292, "locationName": "Damascus" },
+        { "patterns": ["tehran"],                                         "lat": 35.689, "lng": 51.388, "locationName": "Tehran" },
+        { "patterns": ["ankara"],                                         "lat": 39.925, "lng": 32.836, "locationName": "Ankara" },
+        { "patterns": ["istanbul"],                                       "lat": 41.015, "lng": 28.978, "locationName": "Istanbul" },
+
+        { "patterns": ["iran", "iranian"],                                "lat": 35.689, "lng": 51.388, "locationName": "Tehran, Iran" },
+        { "patterns": ["turkey", "turkish"],                              "lat": 39.925, "lng": 32.836, "locationName": "Ankara, Turkey" },
+        { "patterns": ["syria", "syrian"],                                "lat": 33.513, "lng": 36.292, "locationName": "Damascus, Syria" },
+        { "patterns": ["israel", "israeli"],                              "lat": 31.769, "lng": 35.216, "locationName": "Jerusalem, Israel" },
+        { "patterns": ["jordan"],                                         "lat": 31.945, "lng": 35.928, "locationName": "Amman, Jordan" },
+        { "patterns": ["amman"],                                          "lat": 31.945, "lng": 35.928, "locationName": "Amman" },
+        { "patterns": ["kuwait", "kuwaiti"],                              "lat": 29.376, "lng": 47.977, "locationName": "Kuwait City" },
+        { "patterns": ["saudi"],                                          "lat": 24.713, "lng": 46.675, "locationName": "Riyadh, Saudi Arabia" },
+        { "patterns": ["egypt", "egyptian"],                              "lat": 30.044, "lng": 31.235, "locationName": "Cairo, Egypt" },
+        { "patterns": ["cairo"],                                          "lat": 30.044, "lng": 31.235, "locationName": "Cairo" },
+        { "patterns": ["lebanon", "lebanese"],                            "lat": 33.894, "lng": 35.502, "locationName": "Beirut, Lebanon" },
+        { "patterns": ["beirut"],                                         "lat": 33.894, "lng": 35.502, "locationName": "Beirut" }
+      ]
+    },
+    {
+      "name": "International",
+      "description": "Global locations. Countries pin to their capital or primary city.",
+      "locations": [
+        { "patterns": ["united states", "pentagon", "washington", "white house"], "lat": 38.889, "lng": -77.050, "locationName": "Washington DC" },
+        { "patterns": ["russia", "russian", "kremlin"],                   "lat": 55.751, "lng": 37.615, "locationName": "Moscow, Russia" },
+        { "patterns": ["geneva"],                                         "lat": 46.204, "lng": 6.143,  "locationName": "Geneva" },
+        { "patterns": ["london"],                                         "lat": 51.507, "lng": -0.127, "locationName": "London" },
+        { "patterns": ["britain", "british", "uk"],                       "lat": 51.507, "lng": -0.127, "locationName": "London, UK" },
+        { "patterns": ["berlin"],                                         "lat": 52.520, "lng": 13.405, "locationName": "Berlin" },
+        { "patterns": ["germany", "german"],                              "lat": 52.520, "lng": 13.405, "locationName": "Berlin, Germany" },
+        { "patterns": ["paris"],                                          "lat": 48.856, "lng": 2.352,  "locationName": "Paris" },
+        { "patterns": ["france", "french"],                               "lat": 48.856, "lng": 2.352,  "locationName": "Paris, France" },
+        { "patterns": ["united nations", "un security council"],          "lat": 40.749, "lng": -73.968, "locationName": "United Nations, NY" },
+        { "patterns": ["china", "chinese"],                               "lat": 39.904, "lng": 116.397, "locationName": "Beijing, China" },
+        { "patterns": ["beijing"],                                        "lat": 39.904, "lng": 116.397, "locationName": "Beijing" }
+      ]
+    },
+    {
+      "name": "Thematic Fallback",
+      "description": "Keyword-based fallback for articles that mention organizations or themes rather than specific places. Pins to the most relevant headquarters or region.",
+      "locations": [
+        { "patterns": ["pmf", "popular mobilization", "hashd al-shaabi"], "lat": 33.315, "lng": 44.366, "locationName": "Baghdad (PMF)" },
+        { "patterns": ["peshmerga"],                                      "lat": 36.191, "lng": 44.009, "locationName": "Erbil (Peshmerga HQ)" },
+        { "patterns": ["krg", "kurdistan regional government"],           "lat": 36.191, "lng": 44.009, "locationName": "Erbil (KRG)" },
+        { "patterns": ["parliament"],                                     "lat": 36.191, "lng": 44.009, "locationName": "Erbil (Parliament)" },
+        { "patterns": ["pkk"],                                            "lat": 36.530, "lng": 45.150, "locationName": "Qandil (PKK)" },
+        { "patterns": ["irgc", "revolutionary guard"],                    "lat": 35.689, "lng": 51.388, "locationName": "Tehran (IRGC)" },
+        { "patterns": ["isis", "islamic state", "daesh"],                 "lat": 35.468, "lng": 44.392, "locationName": "Kirkuk (ISIS context)" },
+        { "patterns": ["oil", "petroleum", "opec"],                       "lat": 35.468, "lng": 44.392, "locationName": "Kirkuk (Oil)" },
+        { "patterns": ["kurdistan region"],                               "lat": 36.191, "lng": 44.009, "locationName": "Kurdistan Region" }
+      ]
+    }
+  ]
+}

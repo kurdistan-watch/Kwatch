@@ -13,6 +13,10 @@
             "destination": "/api/news"
         },
         {
+            "source": "/api/flash",
+            "destination": "/api/flash"
+        },
+        {
             "source": "/api/planespotters/:path*",
             "destination": "/api/planespotters/:path*"
         }

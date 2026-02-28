@@ -1,70 +1,80 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Geo-Matcher — maps news article text to geographic coordinates
 //
-// Pure function: takes rawText, returns { lat, lng, locationName } or null.
-// Matching follows a strict priority order: Tier 1 → Tier 2 → Tier 3.
-// First match wins.
+// All location data lives in /public/locations.json (editable without
+// touching code). This module contains only the matching logic:
+//
+//   1. Fetch & compile the location dictionary once on first use.
+//   2. Strip Rudaw's standard dateline ("ERBIL, Kurdistan Region -")
+//      from the description so it doesn't override the actual subject.
+//   3. Match the TITLE first (most specific location signal).
+//   4. If no title hit, match the stripped description.
+//   5. Fall back to full rawText.
+//
+// Tiers are matched in JSON order (T1 → T5). First hit wins.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Tier 1 — Kurdistan Region Cities & Districts ─────────────────────────────
-const TIER_1 = [
-    { patterns: ['erbil', 'hewlêr'],                  lat: 36.191, lng: 44.009, locationName: 'Erbil' },
-    { patterns: ['sulaymaniyah', 'slemani'],           lat: 35.557, lng: 45.435, locationName: 'Sulaymaniyah' },
-    { patterns: ['duhok'],                             lat: 36.867, lng: 42.986, locationName: 'Duhok' },
-    { patterns: ['halabja'],                           lat: 35.177, lng: 45.986, locationName: 'Halabja' },
-    { patterns: ['zakho'],                             lat: 37.143, lng: 42.685, locationName: 'Zakho' },
-    { patterns: ['amadiyah', 'amadiya'],               lat: 37.092, lng: 43.487, locationName: 'Amadiyah' },
-    { patterns: ['sinjar', 'shingal'],                 lat: 36.319, lng: 41.867, locationName: 'Sinjar' },
-    { patterns: ['kirkuk', 'kerkuk'],                  lat: 35.468, lng: 44.392, locationName: 'Kirkuk' },
-    { patterns: ['mosul'],                             lat: 36.340, lng: 43.130, locationName: 'Mosul' },
-    { patterns: ['makhmur'],                           lat: 35.775, lng: 43.589, locationName: 'Makhmur' },
-]
-
-// ── Tier 2 — Neighboring Countries / Regions ─────────────────────────────────
-const TIER_2 = [
-    { patterns: ['iran', 'iranian'],                   lat: 33.686, lng: 46.200, locationName: 'Iran' },
-    { patterns: ['tehran'],                            lat: 35.689, lng: 51.388, locationName: 'Tehran' },
-    { patterns: ['turkey', 'turkish', 'ankara'],       lat: 39.925, lng: 32.836, locationName: 'Turkey' },
-    { patterns: ['istanbul'],                          lat: 41.015, lng: 28.978, locationName: 'Istanbul' },
-    { patterns: ['baghdad'],                           lat: 33.315, lng: 44.366, locationName: 'Baghdad' },
-    { patterns: ['syria', 'syrian'],                   lat: 34.802, lng: 38.996, locationName: 'Syria' },
-    { patterns: ['israel', 'israeli'],                 lat: 31.046, lng: 34.851, locationName: 'Israel' },
-    { patterns: ['russia', 'russian'],                 lat: 55.751, lng: 37.615, locationName: 'Moscow' },
-    { patterns: ['united states', 'pentagon', 'washington'], lat: 38.889, lng: -77.050, locationName: 'Washington DC' },
-]
-
-// ── Tier 3 — Thematic fallback ───────────────────────────────────────────────
-const TIER_3 = [
-    { patterns: ['oil', 'petroleum', 'opec'],          lat: 35.468, lng: 44.392, locationName: 'Kirkuk (Oil)' },
-    { patterns: ['parliament', 'krg', 'prime minister'], lat: 36.191, lng: 44.009, locationName: 'Erbil (KRG)' },
-    { patterns: ['peshmerga'],                         lat: 36.191, lng: 44.009, locationName: 'Erbil (KRG HQ)' },
-    { patterns: ['pkk', 'kandil'],                     lat: 37.050, lng: 44.650, locationName: 'Kandil Mountains' },
-    { patterns: ['irgc', 'revolutionary guard'],       lat: 33.686, lng: 46.200, locationName: 'Iran (IRGC)' },
-]
-
-// Combined ordered tiers — first match wins
-const ALL_TIERS = [...TIER_1, ...TIER_2, ...TIER_3]
-
-// Pre-build a single regex per entry for fast matching
-const COMPILED = ALL_TIERS.map((entry) => ({
-    ...entry,
-    regex: new RegExp(`\\b(?:${entry.patterns.join('|')})\\b`, 'i'),
-}))
-
-// ── Public API ───────────────────────────────────────────────────────────────
+// ── Compiled entries cache ───────────────────────────────────────────────────
+let _compiled = null   // Array<{ regex, lat, lng, locationName }>
+let _loadPromise = null // single in-flight fetch
 
 /**
- * Matches raw article text against a tiered keyword dictionary and returns
- * the geographic coordinates of the first match, or null if nothing matches.
- *
- * @param {string} rawText  Combined title + description text.
- * @returns {{ lat: number, lng: number, locationName: string } | null}
+ * Fetch /locations.json and compile every entry's patterns into a single
+ * word-boundary regex. Runs once — subsequent calls return the cached result.
  */
-export const matchGeoLocation = (rawText) => {
-    if (!rawText || typeof rawText !== 'string') return null
+const ensureLoaded = async () => {
+    if (_compiled) return _compiled
+    if (_loadPromise) return _loadPromise
 
-    for (const entry of COMPILED) {
-        if (entry.regex.test(rawText)) {
+    _loadPromise = (async () => {
+        try {
+            const res = await fetch('/locations.json')
+            if (!res.ok) throw new Error(`HTTP ${res.status}`)
+            const data = await res.json()
+
+            const entries = []
+            for (const tier of data.tiers ?? []) {
+                for (const loc of tier.locations ?? []) {
+                    entries.push({
+                        regex: new RegExp(
+                            `\\b(?:${loc.patterns.join('|')})\\b`,
+                            'i',
+                        ),
+                        lat: loc.lat,
+                        lng: loc.lng,
+                        locationName: loc.locationName,
+                    })
+                }
+            }
+
+            _compiled = entries
+            console.info(
+                `[geoMatcher] Loaded ${entries.length} location entries from locations.json`,
+            )
+            return _compiled
+        } catch (err) {
+            console.error('[geoMatcher] Failed to load locations.json:', err)
+            _loadPromise = null // allow retry on next call
+            return []
+        }
+    })()
+
+    return _loadPromise
+}
+
+// ── Dateline stripping ───────────────────────────────────────────────────────
+// Rudaw articles almost always start with "ERBIL, Kurdistan Region —" or
+// similar dateline. This tells us where the newsroom is, not what the
+// article is about, so we strip it before matching the description.
+const DATELINE_RE = /^[A-Z]{3,},?\s+Kurdistan\s+Region\s*[-–—]\s*/i
+
+const stripDateline = (text) => (text ?? '').replace(DATELINE_RE, '')
+
+// ── Internal scanner ─────────────────────────────────────────────────────────
+
+const scanText = (text, entries) => {
+    for (const entry of entries) {
+        if (entry.regex.test(text)) {
             return {
                 lat: entry.lat,
                 lng: entry.lng,
@@ -72,6 +82,49 @@ export const matchGeoLocation = (rawText) => {
             }
         }
     }
-
     return null
+}
+
+// ── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Initialise the location dictionary. Call this early (e.g. in a useEffect)
+ * so the data is ready before the first article arrives.
+ * Safe to call multiple times — only fetches once.
+ */
+export const preloadLocations = () => ensureLoaded()
+
+/**
+ * Matches an article to geographic coordinates with a title-first strategy.
+ *
+ *   1. Scan the **title** against all tiers.
+ *   2. Scan the **description** with its dateline stripped.
+ *   3. Fall back to full rawText.
+ *
+ * Returns synchronously if locations are already loaded, otherwise returns
+ * null (call preloadLocations() first to avoid this).
+ *
+ * @param {string}  rawText      Combined title + description text.
+ * @param {string}  [title]      Article title alone.
+ * @param {string}  [description] Article description alone.
+ * @returns {{ lat: number, lng: number, locationName: string } | null}
+ */
+export const matchGeoLocation = (rawText, title, description) => {
+    if (!rawText || typeof rawText !== 'string') return null
+    if (!_compiled) return null // not loaded yet — caller should preload
+
+    // Pass 1 — title only (most specific signal)
+    if (title) {
+        const hit = scanText(title, _compiled)
+        if (hit) return hit
+    }
+
+    // Pass 2 — description with dateline stripped
+    if (description) {
+        const hit = scanText(stripDateline(description), _compiled)
+        if (hit) return hit
+    }
+
+    // Pass 3 — full rawText fallback
+    return scanText(rawText, _compiled)
 }

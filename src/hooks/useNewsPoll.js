@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { matchGeoLocation } from '@/services/geoMatcher'
+import { matchGeoLocation, preloadLocations } from '@/services/geoMatcher'
 import useFlightStore from '@/store/useFlightStore'
 
 const POLL_INTERVAL_MS = 8 * 60 * 1000 // 8 minutes
@@ -30,6 +30,9 @@ export const useNewsPoll = () => {
         setError(null)
 
         try {
+            // Ensure locations.json is loaded before matching
+            await preloadLocations()
+
             const res = await fetch('/api/news')
             if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
@@ -38,7 +41,9 @@ export const useNewsPoll = () => {
 
             const enriched = items
                 .map((item) => {
-                    const geo = matchGeoLocation(item.rawText)
+                    // Pass title & description separately so the matcher
+                    // can prioritise the title and strip the dateline
+                    const geo = matchGeoLocation(item.rawText, item.title, item.description)
                     if (!geo) return null
 
                     const pubDate = new Date(item.pubDate)

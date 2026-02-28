@@ -34,6 +34,7 @@ const FilterBar = () => {
     const filters      = useFlightStore((s) => s.filters)
     const toggleFilter = useFlightStore((s) => s.toggleFilter)
     const newsCount    = useFlightStore((s) => s.news.length)
+    const flashCount   = useFlightStore((s) => s.flashNews.length)
 
     // Count how many visible (unfiltered) aircraft exist for each type
     const counts = useMemo(() => {
@@ -47,6 +48,7 @@ const FilterBar = () => {
     }, [flights])
 
     const newsActive = filters.news !== false
+    const flashActive = filters.flash !== false
 
     return (
         <div className="absolute top-3 left-3 z-[999] flex flex-col gap-1.5">
@@ -123,6 +125,41 @@ const FilterBar = () => {
                     }}
                 >
                     {newsCount}
+                </span>
+            </button>
+
+            {/* Flash / Breaking news toggle */}
+            <button
+                onClick={() => toggleFilter('flash')}
+                title={`${flashActive ? 'Hide' : 'Show'} Flash News`}
+                style={{
+                    borderColor: '#ef4444',
+                    backgroundColor: flashActive ? '#ef444426' : 'transparent',
+                    color: flashActive ? '#ef4444' : '#6B7280',
+                }}
+                className={`
+                    flex items-center gap-1.5
+                    px-2.5 py-1 rounded
+                    border
+                    text-xs font-medium
+                    backdrop-blur-sm
+                    transition-all duration-150
+                    select-none
+                    hover:opacity-100
+                    ${flashActive ? 'opacity-95' : 'opacity-60 hover:opacity-80'}
+                `}
+            >
+                <span className="text-[11px] leading-none">🚨</span>
+                <span className="leading-none">Flash</span>
+                <span
+                    className={`ml-1 min-w-[16px] text-center rounded-full text-[10px] font-bold leading-none py-0.5 px-1
+                        ${flashActive ? '' : 'bg-slate-200 dark:bg-slate-800'}`}
+                    style={{
+                        backgroundColor: flashActive ? '#ef444433' : undefined,
+                        color: flashActive ? '#ef4444' : '#6B7280',
+                    }}
+                >
+                    {flashCount}
                 </span>
             </button>
         </div>

@@ -1,41 +1,46 @@
 import React, { useMemo } from 'react'
-import { Marker, LayerGroup, useMap } from 'react-leaflet'
+import { Marker, LayerGroup, Tooltip, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import useFlightStore from '@/store/useFlightStore'
 
 // ── Build a L.divIcon for a news pin ─────────────────────────────────────────
+// Teardrop / balloon shape with a Rudaw-style "R" monogram inside.
+// Recent articles (< 3 h) get a warm gold pin; older ones get cool slate.
 
 const buildNewsIcon = (isRecent) => {
-    const bg = isRecent ? '#f5c518' : '#475569'
-    const pulseClass = isRecent ? 'news-pin-pulse' : ''
+    const fill   = isRecent ? '#f5c518' : '#64748b'
+    const stroke = isRecent ? '#b8960e' : '#334155'
+    const glow   = isRecent ? 'news-pin-glow' : ''
 
-    const html = `
-        <div class="news-pin ${pulseClass}" style="
-            width: 16px;
-            height: 16px;
-            background: ${bg};
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            line-height: 1;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-            position: relative;
-            cursor: pointer;
-        ">📰</div>`
+    // SVG teardrop pin with embedded letter
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="0 0 30 42">
+          <defs>
+            <filter id="ds" x="-20%" y="-10%" width="140%" height="130%">
+              <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.35"/>
+            </filter>
+          </defs>
+          <path d="M15 41 C15 41, 2 24, 2 15 A13 13 0 1 1 28 15 C28 24, 15 41, 15 41Z"
+                fill="${fill}" stroke="${stroke}" stroke-width="1.2" filter="url(#ds)"/>
+        
+          <text x="15" y="19.5" text-anchor="middle" font-size="13" font-weight="700"
+                font-family="system-ui, sans-serif" fill="${fill}">🗞️</text>
+        </svg>`
+
+    const html = `<div class="news-pin ${glow}">${svg}</div>`
 
     return L.divIcon({
         html,
         className: '',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
+        iconSize: [30, 42],
+        iconAnchor: [15, 42],   // bottom-center of teardrop
+        popupAnchor: [0, -42],
     })
 }
 
 // Cache icons so we don't rebuild on every render
 const recentIcon = buildNewsIcon(true)
-const olderIcon = buildNewsIcon(false)
+const olderIcon  = buildNewsIcon(false)
 
 // ── Single news marker ───────────────────────────────────────────────────────
 
@@ -56,7 +61,17 @@ const NewsMarker = React.memo(({ item, offset }) => {
             position={position}
             icon={icon}
             eventHandlers={{ click: handleClick }}
-        />
+        >
+            <Tooltip
+                direction="top"
+                offset={[0, -44]}
+                className="news-tooltip"
+            >
+                <span className="font-semibold">{item.locationName}</span>
+                <br />
+                <span className="text-xs opacity-80">{item.title.length > 60 ? item.title.slice(0, 57) + '…' : item.title}</span>
+            </Tooltip>
+        </Marker>
     )
 })
 

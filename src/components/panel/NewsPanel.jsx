@@ -130,10 +130,49 @@ const ArticleView = ({ item, onBack }) => (
     </div>
 )
 
+// ── Flash / breaking headline list item ──────────────────────────────────────
+
+const FlashListItem = React.memo(({ item }) => {
+    const [ago, setAgo] = useState(() => item.timeAgo || timeAgo(item.pubDate))
+
+    // Live-updating time-ago
+    useEffect(() => {
+        if (!item.pubDate) return
+        const id = setInterval(() => setAgo(timeAgo(item.pubDate)), 30_000)
+        return () => clearInterval(id)
+    }, [item.pubDate])
+
+    return (
+        <a
+            href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full text-left px-3 py-2 transition-all duration-150
+                       hover:bg-red-950/30 group cursor-pointer"
+            style={{ borderLeft: '3px solid #ef4444' }}
+        >
+            <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-medium">
+                    📍 {item.locationName}
+                </span>
+            </div>
+            <div className="text-[13px] text-white font-medium leading-snug line-clamp-2 group-hover:text-red-300 transition-colors">
+                {item.title}
+            </div>
+            <div className="text-[10px] text-slate-500 mt-0.5">
+                {ago}
+            </div>
+        </a>
+    )
+})
+
+FlashListItem.displayName = 'FlashListItem'
+
 // ── NewsPanel ────────────────────────────────────────────────────────────────
 
-const NewsPanel = ({ loading, lastUpdated }) => {
+const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
     const news           = useFlightStore((s) => s.news)
+    const flashNews      = useFlightStore((s) => s.flashNews)
     const selectedNews   = useFlightStore((s) => s.selectedNews)
     const selectNews     = useFlightStore((s) => s.selectNews)
     const clearSelected  = useFlightStore((s) => s.clearSelectedNews)
@@ -229,45 +268,87 @@ const NewsPanel = ({ loading, lastUpdated }) => {
                         {/* Story count + refresh */}
                         <div className="flex items-center justify-between mt-1.5">
                             <span className="text-[10px] text-slate-500">
-                                {news.length} stories · last 24h
+                                {news.length} stories · {flashNews.length} flash
                             </span>
                             <span className="text-[10px] text-slate-600 flex items-center gap-1">
-                                {loading && (
+                                {(loading || flashLoading) && (
                                     <span className="inline-block w-2.5 h-2.5 border border-yellow-500 border-t-transparent rounded-full animate-spin" />
                                 )}
-                                {!loading && updatedAgo}
+                                {!loading && !flashLoading && updatedAgo}
                             </span>
                         </div>
                     </div>
 
                     {/* ── BODY ────────────────────────────────────── */}
-                    <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                        {/* Empty state */}
-                        {news.length === 0 && !loading && (
-                            <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                                <span className="text-2xl mb-2">📡</span>
-                                <p className="text-xs text-slate-500 italic">
-                                    No geolocated stories in the last 24 hours
-                                </p>
-                            </div>
-                        )}
+                    <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
 
-                        {/* Article detail */}
-                        {selectedItem && (
-                            <ArticleView item={selectedItem} onBack={handleBack} />
-                        )}
-
-                        {/* Story list */}
-                        {!selectedItem && news.length > 0 && (
-                            <div className="divide-y divide-slate-800/60">
-                                {news.map((item) => (
-                                    <NewsListItem
-                                        key={item.id}
-                                        item={item}
-                                        onSelect={handleSelect}
-                                    />
-                                ))}
+                        {/* Article detail view takes over full body */}
+                        {selectedItem ? (
+                            <div className="flex-1 overflow-y-auto">
+                                <ArticleView item={selectedItem} onBack={handleBack} />
                             </div>
+                        ) : (
+                            <>
+                                {/* ── FLASH / BREAKING SECTION ─── */}
+                                {flashNews.length > 0 && (
+                                    <div className="shrink-0" style={{ maxHeight: '40%' }}>
+                                        <div className="px-3 py-1.5 bg-red-950/40 border-b border-red-900/40 flex items-center gap-1.5">
+                                            <span className="text-xs">🚨</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">
+                                                Breaking Headlines
+                                            </span>
+                                            <span className="ml-auto text-[10px] text-red-400/60 font-medium">
+                                                {flashNews.length}
+                                            </span>
+                                        </div>
+                                        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 30px)' }}>
+                                            <div className="divide-y divide-red-900/20">
+                                                {flashNews.map((item) => (
+                                                    <FlashListItem key={item.id} item={item} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* ── ARTICLES SECTION ──────────── */}
+                                <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                                    {flashNews.length > 0 && news.length > 0 && (
+                                        <div className="px-3 py-1.5 bg-slate-800/40 border-b border-slate-700/40 flex items-center gap-1.5 sticky top-0 z-10 backdrop-blur-sm">
+                                            <span className="text-xs">📰</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-500">
+                                                Articles
+                                            </span>
+                                            <span className="ml-auto text-[10px] text-yellow-500/60 font-medium">
+                                                {news.length}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Empty state */}
+                                    {news.length === 0 && flashNews.length === 0 && !loading && (
+                                        <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                                            <span className="text-2xl mb-2">📡</span>
+                                            <p className="text-xs text-slate-500 italic">
+                                                No geolocated stories in the last 24 hours
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Story list */}
+                                    {news.length > 0 && (
+                                        <div className="divide-y divide-slate-800/60">
+                                            {news.map((item) => (
+                                                <NewsListItem
+                                                    key={item.id}
+                                                    item={item}
+                                                    onSelect={handleSelect}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

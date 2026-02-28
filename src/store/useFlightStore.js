@@ -29,6 +29,7 @@ const useFlightStore = create((set) => ({
         unknown: true,
         military: true,
         news: true,
+        flash: true,
     },
 
     alerts: [],
@@ -36,6 +37,9 @@ const useFlightStore = create((set) => ({
     // ── News state ─────────────────────────────────────────────────────────
     news: [],
     selectedNews: null,
+
+    // ── Flash / breaking news state ────────────────────────────────────────
+    flashNews: [],
 
     // ── Actions ────────────────────────────────────────────────────────────
 
@@ -51,6 +55,12 @@ const useFlightStore = create((set) => ({
      * @param {Array} items  Geo-enriched news items.
      */
     setNews: (items) => set({ news: items }),
+
+    /**
+     * Replace the full flash-news list (called by the flash polling hook).
+     * @param {Array} items  Geo-enriched flash news items.
+     */
+    setFlashNews: (items) => set({ flashNews: items }),
 
     /**
      * Select a news item by its id.
