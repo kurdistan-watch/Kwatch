@@ -33,7 +33,7 @@ const CHANNELS = [
     {
         id: 'ch8',
         name: 'Channel 8',
-        youtubeId: 'XnKsagws7tE',   // Channel 8 Kurdish live
+        youtubeId: 'B6i1uciOoEQ',   // Channel 8 Kurdish live
         accentColor: '#34d399',
     },
 ]

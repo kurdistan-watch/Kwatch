@@ -77,6 +77,7 @@ const OUTLET_EMOJI = {
     'Reuters':    '🌐',
     'Fox News':   '🦊',
     'BBC':        '🇬🇧',
+    'Al Bawaba':  '📌',
 }
 
 // ── News list item (Rudaw — unchanged) ───────────────────────────────────────
