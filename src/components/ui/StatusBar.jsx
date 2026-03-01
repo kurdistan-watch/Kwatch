@@ -2,8 +2,10 @@ import useFlightStore from '@/store/useFlightStore'
 import AlertBadge from './AlertBadge'
 
 const StatusBar = ({ isDark, onToggleTheme }) => {
-    const flightCount = useFlightStore((s) => s.flights.length)
-    const alertCount  = useFlightStore((s) => s.alerts.length)
+    const flightCount  = useFlightStore((s) => s.flights.length)
+    const alertCount   = useFlightStore((s) => s.alerts.length)
+    const tvGridOpen   = useFlightStore((s) => s.tvGridOpen)
+    const toggleTVGrid = useFlightStore((s) => s.toggleTVGrid)
 
     return (
         <div className="bg-slate-900 dark:bg-slate-900 text-white px-4 py-2 flex justify-between items-center text-sm border-b border-slate-700/50 dark:border-slate-700/50">
@@ -28,6 +30,20 @@ const StatusBar = ({ isDark, onToggleTheme }) => {
                     aria-label="Toggle theme"
                 >
                     {isDark ? '☀️' : '🌙'}
+                </button>
+
+                {/* Live TV toggle */}
+                <button
+                    onClick={toggleTVGrid}
+                    title={tvGridOpen ? 'Close Live TV' : 'Open Live TV'}
+                    className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors text-base leading-none select-none ${
+                        tvGridOpen
+                            ? 'bg-yellow-500/20 border border-yellow-500/60 text-yellow-400'
+                            : 'bg-slate-700/60 hover:bg-slate-600 text-slate-300'
+                    }`}
+                    aria-label="Toggle live TV"
+                >
+                    📺
                 </button>
             </div>
         </div>

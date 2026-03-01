@@ -3,6 +3,7 @@ import SidePanel from '@/components/panel/SidePanel'
 import NewsPanel from '@/components/panel/NewsPanel'
 import AlertBadge from '@/components/ui/AlertBadge'
 import StatusBar from '@/components/ui/StatusBar'
+import LiveTVGrid from '@/components/ui/LiveTVGrid'
 import { useFlightPoll } from '@/hooks/useFlightPoll'
 import { useNewsPoll } from '@/hooks/useNewsPoll'
 import { useFlashPoll } from '@/hooks/useFlashPoll'
@@ -43,6 +44,7 @@ function App() {
                     <MapContainer isDark={isDark} />
                     <SidePanel />
                     <AlertBadge />
+                    <LiveTVGrid />
                 </div>
             </main>
         </div>

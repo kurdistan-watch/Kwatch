@@ -48,6 +48,9 @@ const useFlightStore = create((set) => ({
     // 'rudaw' | 'world' | 'all'
     newsFilter: 'all',
 
+    // ── Live TV grid ────────────────────────────────────────────────────────
+    tvGridOpen: true,
+
     // ── Actions ────────────────────────────────────────────────────────────
 
     /**
@@ -91,6 +94,11 @@ const useFlightStore = create((set) => ({
      * @param {'rudaw'|'world'|'all'} filter
      */
     setNewsFilter: (filter) => set({ newsFilter: filter }),
+
+    /**
+     * Toggle the live TV grid overlay open / closed.
+     */
+    toggleTVGrid: () => set((s) => ({ tvGridOpen: !s.tvGridOpen })),
 
     /**
      * Select or deselect an aircraft by its ICAO-24 address.
