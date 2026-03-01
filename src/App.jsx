@@ -8,6 +8,7 @@ import { useFlightPoll } from '@/hooks/useFlightPoll'
 import { useNewsPoll } from '@/hooks/useNewsPoll'
 import { useFlashPoll } from '@/hooks/useFlashPoll'
 import { useGlobalNews } from '@/hooks/useGlobalNews'
+import { useKurdistan24Poll } from '@/hooks/useKurdistan24Poll'
 import { useTheme } from '@/hooks/useTheme'
 
 // Mount flight polling at the top level so it never stops
@@ -21,6 +22,7 @@ function App() {
     const { loading: newsLoading, lastUpdated: newsLastUpdated } = useNewsPoll()
     const { loading: flashLoading } = useFlashPoll()
     useGlobalNews()
+    useKurdistan24Poll()
 
     return (
         <div

@@ -137,13 +137,28 @@ const LiveTVGrid = () => {
     // Minimised = header only, no tiles visible
     const [minimised, setMinimised] = useState(false)
 
-    // Reset minimised state when panel is closed
+    // Maximised = 2× size
+    const [maximised, setMaximised] = useState(false)
+
+    // Reset sizing state when panel is closed
     useEffect(() => {
         if (!tvGridOpen) {
             setMinimised(false)
+            setMaximised(false)
             setActiveAudioId(null)
         }
     }, [tvGridOpen])
+
+    // Minimise and maximise are mutually exclusive
+    const handleMinimise = () => {
+        setMinimised((m) => !m)
+        setMaximised(false)
+    }
+
+    const handleMaximise = () => {
+        setMaximised((m) => !m)
+        setMinimised(false)
+    }
 
     const handleActivate = useCallback((id) => {
         setActiveAudioId(id)
@@ -178,11 +193,16 @@ const LiveTVGrid = () => {
                                flex flex-col
                                bg-slate-900/97 border border-slate-700/60
                                rounded-lg overflow-hidden shadow-2xl
-                               backdrop-blur-sm"
+                               backdrop-blur-sm transition-all duration-300"
                     style={{
-                        width: 'clamp(400px, 44vw, 680px)',
-                        // Height collapses to header when minimised
-                        height: minimised ? 'auto' : 'clamp(280px, 34vh, 520px)',
+                        width: maximised
+                            ? 'clamp(700px, 80vw, 1200px)'
+                            : 'clamp(400px, 44vw, 680px)',
+                        height: minimised
+                            ? 'auto'
+                            : maximised
+                                ? 'clamp(500px, 64vh, 960px)'
+                                : 'clamp(280px, 34vh, 520px)',
                     }}
                 >
                     {/* ── Header ──────────────────────────────── */}
@@ -208,13 +228,23 @@ const LiveTVGrid = () => {
                         <div className="ml-auto flex items-center gap-1">
                             {/* Minimise toggle */}
                             <button
-                                onClick={() => setMinimised((m) => !m)}
+                                onClick={handleMinimise}
                                 title={minimised ? 'Expand' : 'Minimise'}
                                 className="w-5 h-5 flex items-center justify-center rounded
                                            text-slate-500 hover:text-slate-300
                                            hover:bg-slate-700/60 transition-colors text-xs"
                             >
                                 {minimised ? '▲' : '▼'}
+                            </button>
+                            {/* Maximise toggle */}
+                            <button
+                                onClick={handleMaximise}
+                                title={maximised ? 'Restore size' : 'Maximise'}
+                                className="w-5 h-5 flex items-center justify-center rounded
+                                           text-slate-500 hover:text-yellow-400
+                                           hover:bg-slate-700/60 transition-colors text-xs"
+                            >
+                                {maximised ? '⊡' : '⊞'}
                             </button>
                             {/* Close */}
                             <button

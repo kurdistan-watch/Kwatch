@@ -44,6 +44,9 @@ const useFlightStore = create((set) => ({
     // ── Global (world) news state ───────────────────────────────────────────
     globalNews: [],
 
+    // ── Kurdistan 24 news state ─────────────────────────────────────────────
+    k24News: [],
+
     // ── News panel filter ───────────────────────────────────────────────────
     // 'rudaw' | 'world' | 'all'
     newsFilter: 'all',
@@ -88,6 +91,12 @@ const useFlightStore = create((set) => ({
      * @param {Array} items  Geo-tagged world news items.
      */
     setGlobalNews: (items) => set({ globalNews: items }),
+
+    /**
+     * Replace the full Kurdistan 24 news list (called by useKurdistan24Poll hook).
+     * @param {Array} items  Kurdistan 24 RSS items.
+     */
+    setK24News: (items) => set({ k24News: items }),
 
     /**
      * Set the news panel filter.

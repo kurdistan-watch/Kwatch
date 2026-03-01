@@ -6,10 +6,15 @@ import useFlightStore from '@/store/useFlightStore'
 // ── Build a L.divIcon for a news pin ─────────────────────────────────────────
 // Teardrop / balloon shape with a Rudaw-style "R" monogram inside.
 // Recent articles (< 3 h) get a warm gold pin; older ones get cool slate.
+// Kurdistan 24 articles get a teal pin.
 
-const buildNewsIcon = (isRecent) => {
-    const fill   = isRecent ? '#f5c518' : '#64748b'
-    const stroke = isRecent ? '#b8960e' : '#334155'
+const buildNewsIcon = (isRecent, isK24 = false) => {
+    const fill   = isK24
+        ? (isRecent ? '#14b8a6' : '#0f766e')
+        : (isRecent ? '#f5c518' : '#64748b')
+    const stroke = isK24
+        ? (isRecent ? '#0d9488' : '#134e4a')
+        : (isRecent ? '#b8960e' : '#334155')
     const glow   = isRecent ? 'news-pin-glow' : ''
 
     // SVG teardrop pin with embedded letter
@@ -39,8 +44,10 @@ const buildNewsIcon = (isRecent) => {
 }
 
 // Cache icons so we don't rebuild on every render
-const recentIcon = buildNewsIcon(true)
-const olderIcon  = buildNewsIcon(false)
+const recentIcon    = buildNewsIcon(true,  false)
+const olderIcon     = buildNewsIcon(false, false)
+const k24RecentIcon = buildNewsIcon(true,  true)
+const k24OlderIcon  = buildNewsIcon(false, true)
 
 // ── Single news marker ───────────────────────────────────────────────────────
 
@@ -49,7 +56,10 @@ const NewsMarker = React.memo(({ item, offset }) => {
     const selectNews = useFlightStore((s) => s.selectNews)
 
     const position = [item.lat, item.lng + offset]
-    const icon = item.isRecent ? recentIcon : olderIcon
+    const isK24 = item.source === 'Kurdistan 24'
+    const icon  = isK24
+        ? (item.isRecent ? k24RecentIcon : k24OlderIcon)
+        : (item.isRecent ? recentIcon    : olderIcon)
 
     const handleClick = () => {
         selectNews(item.id)
@@ -68,6 +78,9 @@ const NewsMarker = React.memo(({ item, offset }) => {
                 className="news-tooltip"
             >
                 <span className="font-semibold">{item.locationName}</span>
+                {item.source === 'Kurdistan 24' && (
+                    <span className="text-[10px] text-teal-400 ml-1">· K24</span>
+                )}
                 <br />
                 <span className="text-xs opacity-80">{item.title.length > 60 ? item.title.slice(0, 57) + '…' : item.title}</span>
             </Tooltip>
@@ -80,23 +93,27 @@ NewsMarker.displayName = 'NewsMarker'
 // ── NewsMarkerLayer ──────────────────────────────────────────────────────────
 
 const NewsMarkerLayer = () => {
-    const news = useFlightStore((s) => s.news)
-    const showNews = useFlightStore((s) => s.filters.news)
+    const news       = useFlightStore((s) => s.news)
+    const k24News    = useFlightStore((s) => s.k24News)
+    const showNews   = useFlightStore((s) => s.filters.news)
     const newsFilter = useFlightStore((s) => s.newsFilter)
+
+    // Merge Rudaw + K24 into one list for pin rendering
+    const allNewsItems = useMemo(() => [...news, ...k24News], [news, k24News])
 
     // Compute per-item offset to avoid stacking markers at the same lat/lng
     const itemsWithOffset = useMemo(() => {
-        if (!news.length) return []
+        if (!allNewsItems.length) return []
 
         // Group by lat/lng key, assign offset within each group
         const groups = {}
-        return news.map((item) => {
+        return allNewsItems.map((item) => {
             const key = `${item.lat}_${item.lng}`
             if (!(key in groups)) groups[key] = 0
             const idx = groups[key]++
             return { item, offset: idx * 0.05 }
         })
-    }, [news])
+    }, [allNewsItems])
 
     if (showNews === false || newsFilter === 'world' || !itemsWithOffset.length) return null
 

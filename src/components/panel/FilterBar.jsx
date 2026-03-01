@@ -9,21 +9,21 @@ const FILTER_BUTTONS = [
         label:          'Commercial',
         icon:           '✈',
         color:          '#3B82F6',
-        classification: 'COMMERCIAL',
+        classification: 'Commercial Flights',
     },
     {
         key:            'unknown',
         label:          'Some Data Missing',
-        icon:           '?',
+        icon:           '✈',
         color:          '#38BDF8',
-        classification: 'UNKNOWN',
+        classification: 'Flights with mising data',
     },
     {
         key:            'military',
         label:          'Potential Military',
-        icon:           '⚔',
+        icon:           '✈',
         color:          '#F97316',
-        classification: 'MILITARY',
+        classification: 'Potential Military Flights',
     },
 ]
 
