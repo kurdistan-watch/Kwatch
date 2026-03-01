@@ -52,7 +52,7 @@ const kriFillStyle = {
 
 // ── Selectable zone layer ─────────────────────────────────────────────────────
 
-const ZoneLayer = React.memo(({ id, data, label, flip, selected, onSelect }) => {
+const ZoneLayer = React.memo(({ id, data, flip, selected, onSelect }) => {
     const layerRef = useRef(null)
 
     // Update style whenever selection changes — no remount needed

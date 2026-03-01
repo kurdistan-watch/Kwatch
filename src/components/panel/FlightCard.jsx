@@ -72,6 +72,7 @@ const Row = ({ label, value, valueClass = 'text-slate-700 dark:text-slate-200' }
 )
 
 /** Threat level bar — 0-4 filled segments */
+// eslint-disable-next-line no-unused-vars
 const ThreatBar = ({ level }) => {
     const segColors = ['bg-blue-500', 'bg-slate-500', 'bg-orange-500', 'bg-amber-500', 'bg-red-500']
     const active = segColors[Math.min(level, 4)] ?? 'bg-red-500'

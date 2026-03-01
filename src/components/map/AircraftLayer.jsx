@@ -74,12 +74,7 @@ const AircraftMarker = React.memo(({ flight, onSelect }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flight.latitude, flight.longitude])
 
-    const icon = useMemo(() => buildIcon(flight), [
-        flight.heading,
-        flight.displayColor,
-        flight.classification,
-        flight.pulseAnimation,
-    ])
+    const icon = useMemo(() => buildIcon(flight), [flight])
 
     const handleClick = useCallback(() => onSelect(flight.icao24), [onSelect, flight.icao24])
 

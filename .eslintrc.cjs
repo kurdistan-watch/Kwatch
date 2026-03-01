@@ -1,6 +1,6 @@
 module.exports = {
     root: true,
-    env: { browser: true, es2020: true },
+    env: { browser: true, es2020: true, node: true },
     extends: [
         'eslint:recommended',
         'plugin:react/recommended',
@@ -16,5 +16,8 @@ module.exports = {
             'warn',
             { allowConstantExport: true },
         ],
+        // prop-types are not used in this project — Zustand + JSDoc cover type
+        // safety without the noise of per-component PropTypes declarations.
+        'react/prop-types': 'off',
     },
 }

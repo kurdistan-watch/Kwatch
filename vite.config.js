@@ -2,6 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import svgr from 'vite-plugin-svgr'
 import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,6 +13,11 @@ export default defineConfig({
         alias: {
             '@': path.resolve(__dirname, './src'),
         },
+    },
+    // Pre-bundle Leaflet so Vite doesn't choke on its CJS/ESM mixed exports
+    // in production builds — prevents "global is not defined" and icon errors.
+    optimizeDeps: {
+        include: ['leaflet'],
     },
     server: {
         proxy: {

@@ -52,7 +52,7 @@ const FilterBar = () => {
 
     return (
         <div className="absolute top-3 left-3 z-[999] flex flex-col gap-1.5">
-            {FILTER_BUTTONS.map(({ key, label, icon, color, classification }) => {
+            {FILTER_BUTTONS.map(({ key, label, icon, color }) => {
                 const active = filters[key] !== false
 
                 return (
