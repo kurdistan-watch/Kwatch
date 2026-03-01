@@ -1,28 +1,26 @@
-# Kurdistan Air Watch ✈️
+# Kurdistan Watch
 
-A production-grade, open-source flight tracking and live news dashboard focused on the **Kurdistan Region of Iraq** and the wider Middle East.
+A pweekend vibecoding of a  flight tracker using Opensky API and live news dashboard focused on the **Kurdistan Region of Iraq** and the wider Middle East.
 
 Built with **React 18**, **Vite**, **Leaflet**, and **Vercel Serverless Functions**.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🛩️ **Live aircraft tracking** — real-time flight data via OpenSky Network
-- 🗺️ **Interactive Leaflet map** — dark/light tile themes, MENA bounding box
-- 🧠 **Military/civilian classifier** — automatic flight type detection
-- 🚨 **Alert system** — watchlist country detection + military pattern alerts
-- 📰 **Multi-source news** — Rudaw, Kurdistan 24, Al Jazeera, BBC, CNN, DW and more
-- ⚡ **Flash/breaking headlines** — 3-minute polling from Rudaw ticker
-- 📍 **Geo-pinned news markers** — articles placed on the map by location
-- 🌍 **Global news panel** — world-wide coverage with regional geo-tagging
-- 🌙 **Dark / light mode** — persisted via localStorage
-- 📱 **Responsive layout** — collapses gracefully on narrow screens
-- 🔒 **Security headers** — `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` via Vercel
+- **Aircraft tracking** — flight data via OpenSky Network
+- **Interactive Leaflet map** — dark/light tile themes, MENA bounding box is rendered only
+- **Military/civilian classifier** — a simple classifier to categorize some flights
+- **Simple Alerts** — watchlist flight country of origin detection + alerts
+- **Multi-source news** — Rudaw, Kurdistan 24 for sure, Al Jazeera, BBC, CNN, DW and more in the works
+- **Flash/breaking headlines** — 3-minute polling from Rudaw ticker
+- **Dark / light mode** — persisted via localStorage
+- **Responsive layout** — collapses gracefully on narrow screens
+- **Security headers** — `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` via Vercel
 
 ---
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -39,7 +37,7 @@ Built with **React 18**, **Vite**, **Leaflet**, and **Vercel Serverless Function
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 ├── api/                  # Vercel serverless functions (CORS proxies, scrapers)
@@ -66,7 +64,7 @@ Built with **React 18**, **Vite**, **Leaflet**, and **Vercel Serverless Function
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -90,11 +88,7 @@ cp .env.example .env.local
 
 Open `.env.local` and fill in your credentials:
 
-```bash
-# Optional — without these, OpenSky anonymous rate limits apply (~400 req/day)
-OPENSKY_USERNAME=your_username
-OPENSKY_PASSWORD=your_password
-```
+
 
 ### 3. Run locally with Vercel Dev (recommended)
 
@@ -113,11 +107,11 @@ If you only need the frontend without API routes:
 npm run dev             # serves on http://localhost:5173
 ```
 
-> ⚠️ `/api/*` routes won't work without `vercel dev`. The Vite dev proxy in `vite.config.js` handles OpenSky and Planespotters, but `news`, `flash`, and `kurdistan24` require the Vercel runtime.
+> `/api/*` routes won't work without `vercel dev`. The Vite dev proxy in `vite.config.js` handles OpenSky and Planespotters, but `news`, `flash`, and `kurdistan24` require the Vercel runtime.
 
 ---
 
-## 🧪 Available Scripts
+## Available Scripts
 
 | Command | Description |
 |---|---|
@@ -130,7 +124,7 @@ npm run dev             # serves on http://localhost:5173
 
 ---
 
-## 🌿 Branch Structure
+## Branch Structure
 
 | Branch | Purpose | Deployment |
 |---|---|---|
@@ -150,7 +144,7 @@ feature/* → dev → staging → main
 
 ---
 
-## 🔑 Environment Variables
+## Environment Variables
 
 | Variable | Required | Description |
 |---|---|---|
@@ -164,7 +158,7 @@ See [`.env.example`](.env.example) for the full template.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -190,12 +184,6 @@ Contributions are welcome! Please follow these steps:
 - No `console.log` in production code — use `console.info` / `console.warn` / `console.error`
 - All polling hooks must include a `visibilitychange` guard and `AbortController` timeout
 - Zustand store items must use serialisable values — no `Date` objects, use ISO strings
-
----
-
-## 📄 License
-
-This project is open-source. See [LICENSE](LICENSE) for details.
 
 ---
 
