@@ -42,7 +42,44 @@ const useIsNarrow = (breakpoint = 1200) => {
     return narrow
 }
 
-// ── News list item ───────────────────────────────────────────────────────────
+// ── Duplicate detection between Articles and Breaking Headlines ───────────────
+//
+// Flash items are short ticker headlines; news items are full article titles.
+// A news item is considered a duplicate of a flash item if:
+//   1. Their normalised titles are substrings of each other (handles truncation), OR
+//   2. They share ≥70% of their words (handles minor wording differences).
+// Duplicates are kept only in Breaking Headlines and removed from Articles.
+
+const normalizeTitle = (title) =>
+    title.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim()
+
+const isFlashDuplicate = (newsTitle, flashNormalised) => {
+    const norm = normalizeTitle(newsTitle)
+    return flashNormalised.some((flashNorm) => {
+        if (!flashNorm) return false
+        // Substring containment in either direction
+        if (norm.includes(flashNorm) || flashNorm.includes(norm)) return true
+        // Word-overlap ratio ≥ 70 %
+        const newsWords  = norm.split(' ')
+        const flashWords = new Set(flashNorm.split(' '))
+        const shared = newsWords.filter((w) => w.length > 2 && flashWords.has(w)).length
+        return shared / Math.max(newsWords.length, flashWords.size) >= 0.7
+    })
+}
+
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000
+
+// ── Outlet emoji map (mirrors GlobalNewsMarkers.jsx) ─────────────────────────
+
+const OUTLET_EMOJI = {
+    'Al Jazeera': '📡',
+    'CNN':        '🔴',
+    'Reuters':    '🔷',
+    'Fox News':   '🦊',
+    'BBC':        '🌐',
+}
+
+// ── News list item (Rudaw — unchanged) ───────────────────────────────────────
 
 const NewsListItem = React.memo(({ item, onSelect }) => {
     const [ago, setAgo] = useState(() => timeAgo(item.pubDate))
@@ -168,11 +205,158 @@ const FlashListItem = React.memo(({ item }) => {
 
 FlashListItem.displayName = 'FlashListItem'
 
+// ── World breaking headline list item ────────────────────────────────────────
+
+const WorldBreakingListItem = React.memo(({ item }) => {
+    const [ago, setAgo] = useState(() => timeAgo(item.pubDate))
+
+    useEffect(() => {
+        const id = setInterval(() => setAgo(timeAgo(item.pubDate)), 30_000)
+        return () => clearInterval(id)
+    }, [item.pubDate])
+
+    const handleMapCenter = useCallback(() => {
+        if (item.geoRegion) {
+            window.dispatchEvent(
+                new CustomEvent('kwatch:center-news', {
+                    detail: { lat: item.geoRegion.lat, lng: item.geoRegion.lng },
+                })
+            )
+        }
+    }, [item.geoRegion])
+
+    const emoji = OUTLET_EMOJI[item.source] ?? '📰'
+
+    return (
+        <div
+            className="px-3 py-2 transition-all duration-150 hover:bg-red-950/30 group"
+            style={{ borderLeft: '3px solid #ef4444' }}
+        >
+            <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[10px] uppercase tracking-wider text-red-400/70 font-medium">
+                    {emoji} {item.source}
+                </span>
+                {item.geoRegion && (
+                    <button
+                        onClick={handleMapCenter}
+                        className="ml-auto text-[10px] text-slate-600 hover:text-yellow-400 transition-colors"
+                    >
+                        📍 {item.geoRegion.name}
+                    </button>
+                )}
+            </div>
+            <a
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
+                className="block text-[13px] text-white font-medium leading-snug line-clamp-2 group-hover:text-red-300 transition-colors"
+            >
+                {item.title}
+            </a>
+            <div className="text-[10px] text-slate-500 mt-0.5">{ago}</div>
+        </div>
+    )
+})
+
+WorldBreakingListItem.displayName = 'WorldBreakingListItem'
+
+// ── Global (world) news list item ────────────────────────────────────────────
+
+const GlobalNewsListItem = React.memo(({ item }) => {
+    const [ago, setAgo] = useState(() => timeAgo(item.pubDate))
+
+    // Live-updating time-ago
+    useEffect(() => {
+        const id = setInterval(() => setAgo(timeAgo(item.pubDate)), 30_000)
+        return () => clearInterval(id)
+    }, [item.pubDate])
+
+    const handleClick = useCallback(() => {
+        if (item.geoRegion) {
+            window.dispatchEvent(
+                new CustomEvent('kwatch:center-news', {
+                    detail: { lat: item.geoRegion.lat, lng: item.geoRegion.lng },
+                })
+            )
+        }
+    }, [item.geoRegion])
+
+    const emoji = OUTLET_EMOJI[item.source] ?? '📰'
+
+    return (
+        <div
+            className="px-3 py-2.5 transition-all duration-150 hover:bg-slate-800/50 group"
+            style={{ borderLeft: '3px solid #475569' }}
+        >
+            {/* Outlet badge */}
+            <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
+                    {emoji} {item.source}
+                </span>
+                {item.geoRegion && (
+                    <button
+                        onClick={handleClick}
+                        title={`Pan to ${item.geoRegion.name}`}
+                        className="ml-auto text-[10px] text-slate-600 hover:text-yellow-400 transition-colors"
+                    >
+                        📍 {item.geoRegion.name}
+                    </button>
+                )}
+            </div>
+
+            {/* Title + external link */}
+            <a
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-white font-medium leading-snug line-clamp-2 group-hover:text-slate-300 transition-colors"
+            >
+                {item.title}
+            </a>
+
+            <div className="text-[10px] text-slate-500 mt-1">
+                {ago}
+            </div>
+        </div>
+    )
+})
+
+GlobalNewsListItem.displayName = 'GlobalNewsListItem'
+
+// ── Filter bar ────────────────────────────────────────────────────────────────
+
+const FILTERS = [
+    { key: 'rudaw', label: 'Rudaw' },
+    { key: 'world', label: 'World' },
+    { key: 'all',   label: 'All'   },
+]
+
+const FilterBar = ({ active, onSelect }) => (
+    <div className="flex gap-1 px-3 py-2 border-b border-slate-700/60 shrink-0 bg-slate-900/60">
+        {FILTERS.map(({ key, label }) => (
+            <button
+                key={key}
+                onClick={() => onSelect(key)}
+                className={`flex-1 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all duration-150 ${
+                    active === key
+                        ? 'bg-yellow-500 text-slate-900 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/60'
+                }`}
+            >
+                {label}
+            </button>
+        ))}
+    </div>
+)
+
 // ── NewsPanel ────────────────────────────────────────────────────────────────
 
 const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
     const news           = useFlightStore((s) => s.news)
     const flashNews      = useFlightStore((s) => s.flashNews)
+    const globalNews     = useFlightStore((s) => s.globalNews)
+    const newsFilter     = useFlightStore((s) => s.newsFilter)
+    const setNewsFilter  = useFlightStore((s) => s.setNewsFilter)
     const selectedNews   = useFlightStore((s) => s.selectedNews)
     const selectNews     = useFlightStore((s) => s.selectNews)
     const clearSelected  = useFlightStore((s) => s.clearSelectedNews)
@@ -205,13 +389,42 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
 
     const handleSelect = useCallback((id, lat, lng) => {
         selectNews(id)
-        // Dispatch event for map to fly to location
         window.dispatchEvent(
             new CustomEvent('kwatch:center-news', { detail: { lat, lng } })
         )
     }, [selectNews])
 
     const handleBack = useCallback(() => clearSelected(), [clearSelected])
+
+    // Articles deduplicated against Breaking Headlines
+    const deduplicatedNews = useMemo(() => {
+        if (!flashNews.length) return news
+        const flashNormalised = flashNews.map((f) => normalizeTitle(f.title))
+        return news.filter((item) => !isFlashDuplicate(item.title, flashNormalised))
+    }, [news, flashNews])
+
+    // Merged + sorted list for 'all' filter (uses deduplicated Rudaw articles)
+    const mergedItems = useMemo(() => {
+        if (newsFilter !== 'all') return []
+        const rudawTagged  = deduplicatedNews.map((item) => ({ ...item, _type: 'rudaw' }))
+        const globalTagged = globalNews.map((item) => ({ ...item, _type: 'world' }))
+        return [...rudawTagged, ...globalTagged].sort(
+            (a, b) => new Date(b.pubDate) - new Date(a.pubDate)
+        )
+    }, [newsFilter, deduplicatedNews, globalNews])
+
+    // World breaking headlines — all, within 24 h
+    const worldBreaking = useMemo(() =>
+        globalNews
+            .filter((item) => item.isBreaking && Date.now() - new Date(item.pubDate).getTime() < TWENTY_FOUR_HOURS_MS),
+    [globalNews])
+
+    // World articles (non-breaking) — max 40, within 24 h
+    const worldArticles = useMemo(() =>
+        globalNews
+            .filter((item) => !item.isBreaking && Date.now() - new Date(item.pubDate).getTime() < TWENTY_FOUR_HOURS_MS)
+            .slice(0, 40),
+    [globalNews])
 
     return (
         <div
@@ -268,7 +481,7 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                         {/* Story count + refresh */}
                         <div className="flex items-center justify-between mt-1.5">
                             <span className="text-[10px] text-slate-500">
-                                {news.length} stories · {flashNews.length} flash
+                                {deduplicatedNews.length} rudaw · {globalNews.length} world
                             </span>
                             <span className="text-[10px] text-slate-600 flex items-center gap-1">
                                 {(loading || flashLoading) && (
@@ -279,15 +492,18 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                         </div>
                     </div>
 
+                    {/* ── FILTER BAR ──────────────────────────────── */}
+                    <FilterBar active={newsFilter} onSelect={setNewsFilter} />
+
                     {/* ── BODY ────────────────────────────────────── */}
                     <div className="flex-1 flex flex-col" style={{ minHeight: 0 }}>
 
-                        {/* Article detail view takes over full body */}
+                        {/* Article detail view takes over full body (Rudaw only) */}
                         {selectedItem ? (
                             <div className="flex-1 overflow-y-auto">
                                 <ArticleView item={selectedItem} onBack={handleBack} />
                             </div>
-                        ) : (
+                        ) : newsFilter === 'rudaw' ? (
                             <>
                                 {/* ── FLASH / BREAKING SECTION ─── */}
                                 {flashNews.length > 0 && (
@@ -313,20 +529,19 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
 
                                 {/* ── ARTICLES SECTION ──────────── */}
                                 <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                                    {flashNews.length > 0 && news.length > 0 && (
+                                    {flashNews.length > 0 && deduplicatedNews.length > 0 && (
                                         <div className="px-3 py-1.5 bg-slate-800/40 border-b border-slate-700/40 flex items-center gap-1.5 sticky top-0 z-10 backdrop-blur-sm">
                                             <span className="text-xs">📰</span>
                                             <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-500">
                                                 Articles
                                             </span>
                                             <span className="ml-auto text-[10px] text-yellow-500/60 font-medium">
-                                                {news.length}
+                                                {deduplicatedNews.length}
                                             </span>
                                         </div>
                                     )}
 
-                                    {/* Empty state */}
-                                    {news.length === 0 && flashNews.length === 0 && !loading && (
+                                    {deduplicatedNews.length === 0 && flashNews.length === 0 && !loading && (
                                         <div className="flex flex-col items-center justify-center h-full text-center px-6">
                                             <span className="text-2xl mb-2">📡</span>
                                             <p className="text-xs text-slate-500 italic">
@@ -335,10 +550,9 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                         </div>
                                     )}
 
-                                    {/* Story list */}
-                                    {news.length > 0 && (
+                                    {deduplicatedNews.length > 0 && (
                                         <div className="divide-y divide-slate-800/60">
-                                            {news.map((item) => (
+                                            {deduplicatedNews.map((item) => (
                                                 <NewsListItem
                                                     key={item.id}
                                                     item={item}
@@ -347,6 +561,128 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                             ))}
                                         </div>
                                     )}
+                                </div>
+                            </>
+                        ) : newsFilter === 'world' ? (
+                            /* ── WORLD NEWS — breaking + articles ─── */
+                            <>
+                                {/* World breaking headlines */}
+                                {worldBreaking.length > 0 && (
+                                    <div className="shrink-0" style={{ maxHeight: '40%' }}>
+                                        <div className="px-3 py-1.5 bg-red-950/40 border-b border-red-900/40 flex items-center gap-1.5">
+                                            <span className="text-xs">🚨</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">
+                                                World Breaking
+                                            </span>
+                                            <span className="ml-auto text-[10px] text-red-400/60 font-medium">
+                                                {worldBreaking.length}
+                                            </span>
+                                        </div>
+                                        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 30px)' }}>
+                                            <div className="divide-y divide-red-900/20">
+                                                {worldBreaking.map((item) => (
+                                                    <WorldBreakingListItem key={item.id} item={item} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* World articles */}
+                                <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                                    {worldBreaking.length > 0 && worldArticles.length > 0 && (
+                                        <div className="px-3 py-1.5 bg-slate-800/40 border-b border-slate-700/40 flex items-center gap-1.5 sticky top-0 z-10 backdrop-blur-sm">
+                                            <span className="text-xs">📰</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-500">
+                                                World Articles
+                                            </span>
+                                            <span className="ml-auto text-[10px] text-yellow-500/60 font-medium">
+                                                {worldArticles.length}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {worldBreaking.length === 0 && worldArticles.length === 0 && (
+                                        <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                                            <span className="text-2xl mb-2">🌐</span>
+                                            <p className="text-xs text-slate-500 italic">
+                                                {globalNews.length === 0
+                                                    ? 'Loading world news…'
+                                                    : 'No world stories in the last 24 hours'}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {worldArticles.length > 0 && (
+                                        <div className="divide-y divide-slate-800/60">
+                                            {worldArticles.map((item) => (
+                                                <GlobalNewsListItem key={item.id} item={item} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            /* ── ALL — flash + merged rudaw + world ── */
+                            <>
+                                {/* Flash section (Rudaw breaking, always at top) */}
+                                {flashNews.length > 0 && (
+                                    <div className="shrink-0" style={{ maxHeight: '30%' }}>
+                                        <div className="px-3 py-1.5 bg-red-950/40 border-b border-red-900/40 flex items-center gap-1.5">
+                                            <span className="text-xs">🚨</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-red-400">
+                                                Breaking Headlines
+                                            </span>
+                                            <span className="ml-auto text-[10px] text-red-400/60 font-medium">
+                                                {flashNews.length}
+                                            </span>
+                                        </div>
+                                        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 30px)' }}>
+                                            <div className="divide-y divide-red-900/20">
+                                                {flashNews.map((item) => (
+                                                    <FlashListItem key={item.id} item={item} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Merged and sorted list */}
+                                <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
+                                    {mergedItems.length > 0 && (
+                                        <div className="px-3 py-1.5 bg-slate-800/40 border-b border-slate-700/40 flex items-center gap-1.5 sticky top-0 z-10 backdrop-blur-sm">
+                                            <span className="text-xs">🗺️</span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-yellow-500">
+                                                All Stories
+                                            </span>
+                                            <span className="ml-auto text-[10px] text-yellow-500/60 font-medium">
+                                                {mergedItems.length}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {mergedItems.length === 0 && !loading && (
+                                        <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                                            <span className="text-2xl mb-2">📡</span>
+                                            <p className="text-xs text-slate-500 italic">
+                                                No stories loaded yet
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="divide-y divide-slate-800/60">
+                                        {mergedItems.map((item) =>
+                                            item._type === 'rudaw' ? (
+                                                <NewsListItem
+                                                    key={item.id}
+                                                    item={item}
+                                                    onSelect={handleSelect}
+                                                />
+                                            ) : (
+                                                <GlobalNewsListItem key={item.id} item={item} />
+                                            )
+                                        )}
+                                    </div>
                                 </div>
                             </>
                         )}

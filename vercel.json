@@ -18,7 +18,11 @@
         },
         {
             "source": "/api/planespotters/:path*",
-            "destination": "/api/planespotters/:path*"
+            "destination": "/api/planespotters"
+        },
+        {
+            "source": "/api/globalNews",
+            "destination": "/api/globalNews"
         }
     ],
     "headers": [

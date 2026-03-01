@@ -82,6 +82,7 @@ NewsMarker.displayName = 'NewsMarker'
 const NewsMarkerLayer = () => {
     const news = useFlightStore((s) => s.news)
     const showNews = useFlightStore((s) => s.filters.news)
+    const newsFilter = useFlightStore((s) => s.newsFilter)
 
     // Compute per-item offset to avoid stacking markers at the same lat/lng
     const itemsWithOffset = useMemo(() => {
@@ -97,7 +98,7 @@ const NewsMarkerLayer = () => {
         })
     }, [news])
 
-    if (showNews === false || !itemsWithOffset.length) return null
+    if (showNews === false || newsFilter === 'world' || !itemsWithOffset.length) return null
 
     return (
         <LayerGroup>

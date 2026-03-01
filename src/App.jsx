@@ -6,6 +6,7 @@ import StatusBar from '@/components/ui/StatusBar'
 import { useFlightPoll } from '@/hooks/useFlightPoll'
 import { useNewsPoll } from '@/hooks/useNewsPoll'
 import { useFlashPoll } from '@/hooks/useFlashPoll'
+import { useGlobalNews } from '@/hooks/useGlobalNews'
 import { useTheme } from '@/hooks/useTheme'
 
 // Mount flight polling at the top level so it never stops
@@ -18,6 +19,7 @@ function App() {
     const { isDark, toggle } = useTheme()
     const { loading: newsLoading, lastUpdated: newsLastUpdated } = useNewsPoll()
     const { loading: flashLoading } = useFlashPoll()
+    useGlobalNews()
 
     return (
         <div

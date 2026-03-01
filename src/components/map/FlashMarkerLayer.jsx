@@ -68,6 +68,7 @@ FlashMarker.displayName = 'FlashMarker'
 const FlashMarkerLayer = () => {
     const flashNews = useFlightStore((s) => s.flashNews)
     const showFlash = useFlightStore((s) => s.filters.flash)
+    const newsFilter = useFlightStore((s) => s.newsFilter)
 
     // Compute per-item offset to avoid stacking markers at the same lat/lng
     const itemsWithOffset = useMemo(() => {
@@ -82,7 +83,7 @@ const FlashMarkerLayer = () => {
         })
     }, [flashNews])
 
-    if (showFlash === false || !itemsWithOffset.length) return null
+    if (showFlash === false || newsFilter === 'world' || !itemsWithOffset.length) return null
 
     return (
         <LayerGroup>

@@ -116,12 +116,16 @@ const FlightCard = ({ flight }) => {
     const [photo, setPhoto]           = useState(null)
     const [photoLoading, setPhotoLoading] = useState(true)
     useEffect(() => {
+        let cancelled = false
         setPhoto(null)
         setPhotoLoading(true)
         fetchAircraftPhoto(flight.icao24).then((p) => {
-            setPhoto(p)
-            setPhotoLoading(false)
+            if (!cancelled) {
+                setPhoto(p)
+                setPhotoLoading(false)
+            }
         })
+        return () => { cancelled = true }
     }, [flight.icao24])
 
     const handleTrack = useCallback(() => {

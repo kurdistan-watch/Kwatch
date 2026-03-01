@@ -3,6 +3,7 @@ import { MapContainer as LeafletMap, TileLayer, ZoomControl, useMap } from 'reac
 import AircraftLayer from './AircraftLayer'
 import NewsMarkerLayer from './NewsMarkerLayer'
 import FlashMarkerLayer from './FlashMarkerLayer'
+import GlobalNewsMarkers from './GlobalNewsMarkers'
 import ZoneBoundary from './ZoneBoundary'
 import FilterBar from '@/components/panel/FilterBar'
 import 'leaflet/dist/leaflet.css'
@@ -89,6 +90,7 @@ const MapContainer = ({ isDark = true }) => {
                 <AircraftLayer />
                 <NewsMarkerLayer />
                 <FlashMarkerLayer />
+                <GlobalNewsMarkers />
                 <MapEvents />
             </LeafletMap>
         </div>

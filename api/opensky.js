@@ -12,6 +12,7 @@
 // ── Token cache (lives for the lifetime of the warm Lambda instance) ─────────
 let _cachedToken = null
 let _tokenExpiry = 0 // Unix ms
+let _tokenPromise = null // in-flight fetch — prevents concurrent token requests
 
 /**
  * Fetches (or returns cached) OAuth2 Bearer token from OpenSky's Keycloak.
@@ -27,36 +28,45 @@ async function getAccessToken() {
     // Return cached token if still valid (30s safety buffer)
     if (_cachedToken && Date.now() < _tokenExpiry) return _cachedToken
 
+    // If a fetch is already in-flight, wait for it — don't issue a second request
+    if (_tokenPromise) return _tokenPromise
+
     const body = new URLSearchParams({
         grant_type: 'client_credentials',
         client_id: clientId,
         client_secret: clientSecret,
     })
 
-    try {
-        const resp = await fetch(
-            'https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token',
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: body.toString(),
+    _tokenPromise = (async () => {
+        try {
+            const resp = await fetch(
+                'https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString(),
+                }
+            )
+
+            if (!resp.ok) {
+                console.error(`[api/opensky] Token fetch failed: HTTP ${resp.status}`)
+                return null
             }
-        )
 
-        if (!resp.ok) {
-            console.error(`[api/opensky] Token fetch failed: HTTP ${resp.status}`)
+            const data = await resp.json()
+            _cachedToken = data.access_token
+            _tokenExpiry = Date.now() + (data.expires_in - 30) * 1000
+            console.info(`[api/opensky] Token obtained — expires in ${data.expires_in}s`)
+            return _cachedToken
+        } catch (err) {
+            console.error('[api/opensky] Token fetch error:', err.message)
             return null
+        } finally {
+            _tokenPromise = null // allow re-fetch on next expiry
         }
+    })()
 
-        const data = await resp.json()
-        _cachedToken = data.access_token
-        _tokenExpiry = Date.now() + (data.expires_in - 30) * 1000
-        console.info(`[api/opensky] Token obtained — expires in ${data.expires_in}s`)
-        return _cachedToken
-    } catch (err) {
-        console.error('[api/opensky] Token fetch error:', err.message)
-        return null
-    }
+    return _tokenPromise
 }
 
 // ── Main handler ─────────────────────────────────────────────────────────────

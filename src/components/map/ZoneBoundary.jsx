@@ -89,6 +89,20 @@ const ZoneLayer = React.memo(({ id, data, label, flip, selected, onSelect }) => 
 
 ZoneLayer.displayName = 'ZoneLayer'
 
+// ── City marker icons (created once at module level — never changes) ──────────
+
+const capitalIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:9px;height:9px;background:#f5c518;border-radius:50%;box-shadow:0 0 6px 2px rgba(245,197,24,0.7);"></div>',
+    iconSize: [9, 9], iconAnchor: [4, 4],
+})
+
+const cityIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:6px;height:6px;background:#94a3b8;border-radius:50%;box-shadow:0 0 3px rgba(148,163,184,0.5);"></div>',
+    iconSize: [6, 6], iconAnchor: [3, 3],
+})
+
 // ── Main ZoneBoundary ─────────────────────────────────────────────────────────
 
 const ZoneBoundary = () => {
@@ -143,18 +157,6 @@ const ZoneBoundary = () => {
         { name: 'Duhok',          coords: [36.867, 42.986], capital: false },
         { name: 'Halabja',        coords: [35.177, 45.986], capital: false },
     ]
-
-    const capitalIcon = L.divIcon({
-        className: '',
-        html: '<div style="width:9px;height:9px;background:#f5c518;border-radius:50%;box-shadow:0 0 6px 2px rgba(245,197,24,0.7);"></div>',
-        iconSize: [9, 9], iconAnchor: [4, 4],
-    })
-
-    const cityIcon = L.divIcon({
-        className: '',
-        html: '<div style="width:6px;height:6px;background:#94a3b8;border-radius:50%;box-shadow:0 0 3px rgba(148,163,184,0.5);"></div>',
-        iconSize: [6, 6], iconAnchor: [3, 3],
-    })
 
     return (
         <>

@@ -5,10 +5,9 @@
 //   /api/planespotters/pub/photos/hex/a1b2c3
 //
 // vercel.json rewrites /api/planespotters/:path* → /api/planespotters
-// The catch-all path segments arrive in req.query.path as an array.
+// The captured :path* segments arrive in req.query.path as an array.
 //
-// This function strips the /api/planespotters prefix and forwards the
-// remainder to https://api.planespotters.net/...
+// This function forwards the path to https://api.planespotters.net/...
 //
 // Aircraft photos rarely change, so the response is cached aggressively.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,7 +18,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        // req.query.path is an array from the catch-all rewrite, e.g. ["pub","photos","hex","a1b2c3"]
+        // req.query.path is an array from the vercel.json rewrite capture, e.g. ["pub","photos","hex","a1b2c3"]
         const pathSegments = req.query.path
         const forwardPath = Array.isArray(pathSegments) ? pathSegments.join('/') : (pathSegments ?? '')
 

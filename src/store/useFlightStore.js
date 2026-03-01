@@ -41,6 +41,13 @@ const useFlightStore = create((set) => ({
     // ── Flash / breaking news state ────────────────────────────────────────
     flashNews: [],
 
+    // ── Global (world) news state ───────────────────────────────────────────
+    globalNews: [],
+
+    // ── News panel filter ───────────────────────────────────────────────────
+    // 'rudaw' | 'world' | 'all'
+    newsFilter: 'all',
+
     // ── Actions ────────────────────────────────────────────────────────────
 
     /**
@@ -72,6 +79,18 @@ const useFlightStore = create((set) => ({
      * Clear the currently selected news item.
      */
     clearSelectedNews: () => set({ selectedNews: null }),
+
+    /**
+     * Replace the full global (world) news list (called by useGlobalNews hook).
+     * @param {Array} items  Geo-tagged world news items.
+     */
+    setGlobalNews: (items) => set({ globalNews: items }),
+
+    /**
+     * Set the news panel filter.
+     * @param {'rudaw'|'world'|'all'} filter
+     */
+    setNewsFilter: (filter) => set({ newsFilter: filter }),
 
     /**
      * Select or deselect an aircraft by its ICAO-24 address.
