@@ -46,21 +46,28 @@ export default async function handler(req, res) {
     }
 
     try {
+        // Abort both upstream fetches if they stall beyond 8 s
+        const controller = new AbortController()
+        const timeoutId  = setTimeout(() => controller.abort(), 8_000)
+
         // Fetch pages 1 and 2 in parallel to get enough recent articles
         const [page1, page2] = await Promise.all([
             fetch(`${RUDAW_API}?CurrentPage=1&lang=English&isMobileBrowser=False`, {
+                signal: controller.signal,
                 headers: {
                     Accept: 'application/json',
                     'User-Agent': 'KurdistanAirWatch/1.0',
                 },
             }),
             fetch(`${RUDAW_API}?CurrentPage=2&lang=English&isMobileBrowser=False`, {
+                signal: controller.signal,
                 headers: {
                     Accept: 'application/json',
                     'User-Agent': 'KurdistanAirWatch/1.0',
                 },
             }),
         ])
+        clearTimeout(timeoutId)
 
         if (!page1.ok) {
             throw new Error(`Rudaw API returned HTTP ${page1.status}`)
@@ -122,7 +129,7 @@ export default async function handler(req, res) {
         res.setHeader('Content-Type', 'application/json')
         return res.status(200).json(items)
     } catch (err) {
-        console.error('[api/news] Handler error:', err.message)
+        console.error('[api/news] Handler error:', err.name === 'AbortError' ? 'fetch timed out after 8 s' : err.message)
 
         // Return cached data if available
         if (_cachedItems) {
@@ -133,7 +140,7 @@ export default async function handler(req, res) {
 
         return res.status(502).json({
             error: 'Failed to fetch Rudaw news',
-            detail: err.message,
+            detail: err.name === 'AbortError' ? 'upstream timeout' : err.message,
         })
     }
 }

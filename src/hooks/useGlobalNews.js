@@ -3,6 +3,7 @@ import useFlightStore from '@/store/useFlightStore'
 
 const POLL_INTERVAL_MS = 3 * 60 * 1000 // 3 minutes
 const THREE_HOURS_MS   = 3 * 60 * 60 * 1000
+const FETCH_TIMEOUT_MS = 8_000
 
 /**
  * useGlobalNews — fetches world news from the /api/globalNews proxy on a
@@ -23,11 +24,18 @@ export const useGlobalNews = () => {
     const intervalRef = useRef(null)
 
     const fetchGlobalNews = useCallback(async () => {
+        // Skip fetch when tab is backgrounded — saves bandwidth
+        if (document.visibilityState === 'hidden') return
+
         setLoading(true)
         setError(null)
 
+        const controller = new AbortController()
+        const timeoutId  = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+
         try {
-            const res = await fetch('/api/globalNews')
+            const res = await fetch('/api/globalNews', { signal: controller.signal })
+            clearTimeout(timeoutId)
             if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
             const items = await res.json()
@@ -35,15 +43,20 @@ export const useGlobalNews = () => {
 
             const enriched = items.map((item) => ({
                 ...item,
-                pubDate:  new Date(item.pubDate),
+                pubDate:  new Date(item.pubDate).toISOString(), // serialisable
                 isRecent: now - new Date(item.pubDate).getTime() < THREE_HOURS_MS,
             }))
 
             setGlobalNews(enriched)
             setLastUpdated(new Date())
         } catch (err) {
-            console.error('[useGlobalNews] ❌ Fetch failed:', err.message)
-            setError(err.message)
+            clearTimeout(timeoutId)
+            if (err.name === 'AbortError') {
+                console.warn('[useGlobalNews] fetch timed out after 8 s')
+            } else {
+                console.error('[useGlobalNews] ❌ Fetch failed:', err.message)
+                setError(err.message)
+            }
         } finally {
             setLoading(false)
         }
@@ -56,8 +69,15 @@ export const useGlobalNews = () => {
         // Then poll every 3 minutes
         intervalRef.current = setInterval(fetchGlobalNews, POLL_INTERVAL_MS)
 
+        // Resume immediately when the user navigates back to this tab
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') fetchGlobalNews()
+        }
+        document.addEventListener('visibilitychange', handleVisibility)
+
         return () => {
             if (intervalRef.current) clearInterval(intervalRef.current)
+            document.removeEventListener('visibilitychange', handleVisibility)
         }
     }, [fetchGlobalNews])
 

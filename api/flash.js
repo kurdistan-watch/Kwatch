@@ -61,12 +61,17 @@ export default async function handler(req, res) {
     }
 
     try {
+        const controller = new AbortController()
+        const timeoutId  = setTimeout(() => controller.abort(), 8_000)
+
         const response = await fetch(RUDAW_PAGE, {
+            signal: controller.signal,
             headers: {
                 'User-Agent': 'KurdistanAirWatch/1.0',
                 Accept: 'text/html',
             },
         })
+        clearTimeout(timeoutId)
 
         if (!response.ok) {
             throw new Error(`Rudaw page returned HTTP ${response.status}`)
@@ -121,7 +126,7 @@ export default async function handler(req, res) {
         res.setHeader('Cache-Control', 's-maxage=180, stale-while-revalidate=60')
         return res.status(200).json(items)
     } catch (err) {
-        console.error('[api/flash] ❌', err.message)
+        console.error('[api/flash] ❌', err.name === 'AbortError' ? 'fetch timed out after 8 s' : err.message)
 
         // Return cached items on error
         if (_cachedItems) {
@@ -130,6 +135,6 @@ export default async function handler(req, res) {
             return res.status(200).json(_cachedItems)
         }
 
-        return res.status(502).json({ error: 'Failed to fetch flash news', detail: err.message })
+        return res.status(502).json({ error: 'Failed to fetch flash news', detail: err.name === 'AbortError' ? 'upstream timeout' : err.message })
     }
 }

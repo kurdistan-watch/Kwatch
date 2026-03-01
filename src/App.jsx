@@ -1,15 +1,36 @@
-import MapContainer from '@/components/map/MapContainer'
+import { lazy, Suspense } from 'react'
 import SidePanel from '@/components/panel/SidePanel'
-import NewsPanel from '@/components/panel/NewsPanel'
 import AlertBadge from '@/components/ui/AlertBadge'
 import StatusBar from '@/components/ui/StatusBar'
 import LiveTVGrid from '@/components/ui/LiveTVGrid'
+import ErrorBoundary from '@/components/ui/ErrorBoundary'
 import { useFlightPoll } from '@/hooks/useFlightPoll'
 import { useNewsPoll } from '@/hooks/useNewsPoll'
 import { useFlashPoll } from '@/hooks/useFlashPoll'
 import { useGlobalNews } from '@/hooks/useGlobalNews'
 import { useKurdistan24Poll } from '@/hooks/useKurdistan24Poll'
 import { useTheme } from '@/hooks/useTheme'
+
+// Heavy components are lazily loaded — deferred until after first paint so the
+// StatusBar and shell chrome appear immediately.
+const MapContainer = lazy(() => import('@/components/map/MapContainer'))
+const NewsPanel    = lazy(() => import('@/components/panel/NewsPanel'))
+
+// ── Skeleton fallbacks shown while lazy chunks are downloading ────────────────
+
+const MapSkeleton = () => (
+    <div className="flex-1 flex items-center justify-center bg-slate-900 animate-pulse">
+        <span className="text-slate-600 text-sm">Loading map…</span>
+    </div>
+)
+
+const NewsPanelSkeleton = () => (
+    <div className="w-[280px] shrink-0 bg-[#0d1117] border-r border-slate-800 flex flex-col gap-3 p-3 animate-pulse">
+        {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-14 rounded bg-slate-800/60" />
+        ))}
+    </div>
+)
 
 // Mount flight polling at the top level so it never stops
 const FlightPollingRoot = () => {
@@ -39,11 +60,19 @@ function App() {
             {/* Three-column layout: NewsPanel | Map | SidePanel */}
             <main className="flex-1 flex relative" style={{ minHeight: 0 }}>
                 {/* Left — News panel (280px, collapses on small screens) */}
-                <NewsPanel loading={newsLoading} lastUpdated={newsLastUpdated} flashLoading={flashLoading} />
+                <ErrorBoundary label="News Panel">
+                    <Suspense fallback={<NewsPanelSkeleton />}>
+                        <NewsPanel loading={newsLoading} lastUpdated={newsLastUpdated} flashLoading={flashLoading} />
+                    </Suspense>
+                </ErrorBoundary>
 
                 {/* Center — Map fills remaining space */}
                 <div className="flex-1 relative" style={{ minWidth: 0 }}>
-                    <MapContainer isDark={isDark} />
+                    <ErrorBoundary label="Map">
+                        <Suspense fallback={<MapSkeleton />}>
+                            <MapContainer isDark={isDark} />
+                        </Suspense>
+                    </ErrorBoundary>
                     <SidePanel />
                     <AlertBadge />
                     <LiveTVGrid />

@@ -48,7 +48,7 @@ const TILE = {
 
 const MapContainer = ({ isDark = true }) => {
     const center = [36.35, 44.2] // Kurdistan Region centroid
-    const defaultZoom = 8.2
+    const defaultZoom = 6.8
     const minZoom = 4
     const maxZoom = 14
 

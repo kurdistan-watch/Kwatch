@@ -69,6 +69,21 @@ const isFlashDuplicate = (newsTitle, flashNormalised) => {
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000
 
+// ── Loading skeleton — shown on first fetch before any articles arrive ────────
+
+const NewsSkeleton = () => (
+    <div className="divide-y divide-slate-800/60 animate-pulse">
+        {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="px-3 py-2.5" style={{ borderLeft: '3px solid #334155' }}>
+                <div className="h-2 w-16 bg-slate-700/60 rounded mb-2" />
+                <div className="h-3 bg-slate-700/40 rounded mb-1" />
+                <div className="h-3 w-4/5 bg-slate-700/40 rounded mb-2" />
+                <div className="h-2 w-10 bg-slate-800/60 rounded" />
+            </div>
+        ))}
+    </div>
+)
+
 // ── Outlet emoji map (mirrors GlobalNewsMarkers.jsx) ─────────────────────────
 
 const OUTLET_EMOJI = {
@@ -589,6 +604,10 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                         </div>
                                     )}
 
+                                    {rudawTabArticles.length === 0 && flashNews.length === 0 && loading && (
+                                        <NewsSkeleton />
+                                    )}
+
                                     {rudawTabArticles.length === 0 && flashNews.length === 0 && !loading && (
                                         <div className="flex flex-col items-center justify-center h-full text-center px-6">
                                             <span className="text-2xl mb-2">📡</span>
@@ -707,6 +726,10 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                                 {mergedItems.length}
                                             </span>
                                         </div>
+                                    )}
+
+                                    {mergedItems.length === 0 && loading && (
+                                        <NewsSkeleton />
                                     )}
 
                                     {mergedItems.length === 0 && !loading && (
