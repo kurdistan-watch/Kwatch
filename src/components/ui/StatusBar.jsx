@@ -43,7 +43,7 @@ const StatusBar = ({ isDark, onToggleTheme }) => {
                     }`}
                     aria-label="Toggle live TV"
                 >
-                    📺
+                    TV
                 </button>
             </div>
         </div>
