@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import SidePanel from '@/components/panel/SidePanel'
 import AlertBadge from '@/components/ui/AlertBadge'
 import StatusBar from '@/components/ui/StatusBar'
@@ -78,6 +79,7 @@ function App() {
                     <LiveTVGrid />
                 </div>
             </main>
+            <Analytics />
         </div>
     )
 }
