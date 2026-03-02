@@ -10,7 +10,17 @@ const StatusBar = ({ isDark, onToggleTheme }) => {
     return (
         <div className="bg-slate-900 dark:bg-slate-900 text-white px-4 py-2 flex justify-between items-center text-sm border-b border-slate-700/50 dark:border-slate-700/50">
             <div className="flex items-center gap-4">
-                <span className="font-bold tracking-tight">KURDISTAN WATCH</span>
+                <div className="flex flex-col leading-none gap-0.5">
+                    <div className="flex items-center gap-2">
+                        <span className="text-base font-bold tracking-tight">KURDISTAN WATCH</span>
+                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-400 tracking-widest uppercase">
+                            BETA
+                        </span>
+                    </div>
+                    <span className="text-[9px] text-slate-500 tracking-widest uppercase">
+                        website under construction
+                    </span>
+                </div>
                 <AlertBadge count={alertCount} />
             </div>
             <div className="flex gap-4 items-center">
