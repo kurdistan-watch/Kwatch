@@ -140,6 +140,17 @@ const LiveTVGrid = () => {
     // Maximised = 2× size
     const [maximised, setMaximised] = useState(false)
 
+    // Detect mobile — show only top 2 channels on small screens
+    const [isMobile, setIsMobile] = useState(
+        () => typeof window !== 'undefined' && window.innerWidth <= 768
+    )
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 768px)')
+        const handler = (e) => setIsMobile(e.matches)
+        mq.addEventListener('change', handler)
+        return () => mq.removeEventListener('change', handler)
+    }, [])
+
     // Reset sizing state when panel is closed
     useEffect(() => {
         if (!tvGridOpen) {
@@ -195,14 +206,18 @@ const LiveTVGrid = () => {
                                rounded-lg overflow-hidden shadow-2xl
                                backdrop-blur-sm transition-all duration-300"
                     style={{
-                        width: maximised
-                            ? 'clamp(700px, 80vw, 1200px)'
-                            : 'clamp(400px, 44vw, 680px)',
+                        width: isMobile
+                            ? 'calc(100vw - 2rem)'
+                            : maximised
+                                ? 'clamp(700px, 80vw, 1200px)'
+                                : 'clamp(400px, 44vw, 680px)',
                         height: minimised
                             ? 'auto'
-                            : maximised
-                                ? 'clamp(500px, 64vh, 960px)'
-                                : 'clamp(280px, 34vh, 520px)',
+                            : isMobile
+                                ? 'clamp(160px, 28vh, 260px)'
+                                : maximised
+                                    ? 'clamp(500px, 64vh, 960px)'
+                                    : 'clamp(280px, 34vh, 520px)',
                     }}
                 >
                     {/* ── Header ──────────────────────────────── */}
@@ -259,13 +274,13 @@ const LiveTVGrid = () => {
                         </div>
                     </div>
 
-                    {/* ── 2 × 2 tile grid ─────────────────────── */}
+                    {/* ── 2 × 2 tile grid (mobile: top 2 only) ── */}
                     {!minimised && (
                         <div
                             className="flex-1 grid grid-cols-2"
-                            style={{ minHeight: 0, gridTemplateRows: '1fr 1fr' }}
+                            style={{ minHeight: 0, gridTemplateRows: isMobile ? '1fr' : '1fr 1fr' }}
                         >
-                            {CHANNELS.map((ch) => (
+                            {(isMobile ? CHANNELS.slice(0, 2) : CHANNELS).map((ch) => (
                                 <ChannelTile
                                     key={ch.id}
                                     channel={ch}

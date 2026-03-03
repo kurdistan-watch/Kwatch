@@ -47,8 +47,14 @@ const TILE = {
 }
 
 const MapContainer = ({ isDark = true }) => {
-    const center = [36.35, 44.2] // Kurdistan Region centroid
-    const defaultZoom = 6.8
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
+    // On desktop the side panels offset the visible area, so the map center
+    // is nudged east to compensate. On mobile both panels collapse, so we
+    // use the true geographic centroid and a slightly lower zoom to fit.
+    // The mobile latitude is nudged north so the map view sits higher.
+    const center = isMobile ? [36.6, 44.0] : [36.35, 44.2]
+    const defaultZoom = isMobile ? 6.8 : 7.2
     const minZoom = 4
     const maxZoom = 14
 

@@ -107,7 +107,10 @@ const SidePanel = () => {
         if (flights.length > 0) setLastUpdated(new Date())
     }, [flights])
 
-    const [collapsed, setCollapsed] = useState(false)
+    // Default to collapsed on mobile (≤ 768px)
+    const [collapsed, setCollapsed] = useState(
+        () => typeof window !== 'undefined' && window.innerWidth <= 768
+    )
 
     const classToFilterKey = {
         COMMERCIAL: 'commercial',

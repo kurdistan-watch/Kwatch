@@ -8,7 +8,7 @@ const StatusBar = ({ isDark, onToggleTheme }) => {
     const toggleTVGrid = useFlightStore((s) => s.toggleTVGrid)
 
     return (
-        <div className="bg-slate-900 dark:bg-slate-900 text-white px-4 py-2 flex justify-between items-center text-sm border-b border-slate-700/50 dark:border-slate-700/50">
+        <div className="bg-slate-900 dark:bg-slate-900 text-white px-4 py-1 sm:py-2 flex justify-between items-center text-sm border-b border-slate-700/50 dark:border-slate-700/50">
             <div className="flex items-center gap-4">
                 <div className="flex flex-col leading-none gap-0.5">
                     <div className="flex items-center gap-2">
