@@ -13,16 +13,17 @@ const api = axios.create({ timeout: 15_000 })
 const BASE_URL = '/api/opensky'
 
 /**
- * MENA + surrounding region bounding box
- * Covers: North Africa, Arabian Peninsula, Levant, Turkey,
- *         Iran, Gulf states, parts of Central Asia & Europe border
- *   lat: 10°N (Yemen/Somalia) → 42°N (Turkey/Caucasus)
- *   lon: 25°E (Egypt/Libya)   → 63°E (Pakistan border)
+ * EMEA (Europe, Middle East & Africa) bounding box
+ * Covers: All of Europe (incl. Scandinavia & Iceland), North Africa,
+ *         Sub-Saharan Africa, Arabian Peninsula, Levant, Turkey,
+ *         Iran, Gulf states, Central Asia borders
+ *   lat: -35°S (South Africa) → 72°N (Northern Scandinavia)
+ *   lon: -25°W (Iceland / W. Africa) → 63°E (Pakistan border)
  */
 const BBOX = {
-    lamin: 10.0,
-    lomin: 25.0,
-    lamax: 42.0,
+    lamin: -35.0,
+    lomin: -25.0,
+    lamax: 72.0,
     lomax: 63.0,
 }
 
@@ -102,12 +103,12 @@ const withRetry = async (fn, retries = MAX_RETRIES, delay = BASE_DELAY_MS) => {
 
 // Timestamp until which we should not re-attempt (rate-limit cooldown)
 let _rateLimitedUntil = 0
-const RATE_LIMIT_COOLDOWN_MS = 10 * 60 * 1000 // 10 minutes
+const RATE_LIMIT_COOLDOWN_MS = 2 * 60 * 1000 // 2 minutes (authenticated API recovers quickly)
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
- * Fetches live flight states for the Kurdistan bounding box.
+ * Fetches live flight states for the EMEA bounding box.
  * On any unrecoverable error the last known flight array is returned so the
  * UI never goes blank.
  *

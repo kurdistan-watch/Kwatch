@@ -83,11 +83,11 @@ if ! curl -s --max-time 5 "$BASE" > /dev/null 2>&1; then
     exit 1
 fi
 
-# ── Test 1: OpenSky proxy — full MENA bounding box ───────────────────────────
+# ── Test 1: OpenSky proxy — full EMEA bounding box ───────────────────────────
 
 check \
-    "OpenSky proxy — MENA bounding box (should return flight states)" \
-    "${BASE}/api/opensky?lamin=10&lomin=25&lamax=42&lomax=63" \
+    "OpenSky proxy — EMEA bounding box (should return flight states)" \
+    "${BASE}/api/opensky?lamin=-35&lomin=-25&lamax=72&lomax=63" \
     ".time"
 
 # ── Test 2: OpenSky proxy — small bbox around Erbil ──────────────────────────

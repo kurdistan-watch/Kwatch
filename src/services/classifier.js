@@ -33,8 +33,21 @@ const STALE_SIGNAL_SECONDS = 120;
 const EXTREMELY_LOW_ALT_FT = 500;
 
 const MILITARY_CALLSIGN_PREFIXES = [
-  'RCH', 'MMF', 'JAKE', 'REACH', 'OLIVE',
+  // US Air Force / Air Mobility Command
+  'RCH', 'REACH', 'MMF', 'JAKE', 'OLIVE',
   'KNIFE', 'FURY', 'TOPCAT', 'DOOM', 'VIPER', 'BONE', 'GHOST',
+  // US Navy
+  'CNV', 'NAVY',
+  // UK Royal Air Force
+  'RRR', 'ASCOT', 'COMET', 'TARTAN',
+  // French Air Force (Armée de l'air)
+  'RFR', 'FAF', 'COTAM',
+  // NATO / Multi-national
+  'NATO', 'MAGIC',
+  // Turkish Air Force (active operations in northern Iraq)
+  'TUAF', 'KAFKAS',
+  // MENA regional militaries
+  'JAF', 'RJAF', 'SAF', 'PAF',
 ];
 
 const MILITARY_ORIGIN_COUNTRIES = ['Iran', 'Russia'];
@@ -72,7 +85,8 @@ const isMilitary = (f) => {
   const hex = (f.icao24  ?? '').toLowerCase();
 
   if (cs && MILITARY_CALLSIGN_PREFIXES.some((p) => cs.startsWith(p))) return true;
-  if (hex.startsWith('ae')) return true;
+  if (hex.startsWith('ae')) return true;                                                          // US military ICAO24 block
+  if (hex.startsWith('43') && f.originCountry === 'United Kingdom') return true;                  // UK military ICAO24 block
   if (hex.startsWith('a') && f.originCountry === 'United States' && !isCommercialCallsign(cs)) return true;
   if (MILITARY_ORIGIN_COUNTRIES.includes(f.originCountry)) return true;
 

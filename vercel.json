@@ -9,6 +9,10 @@
             "destination": "/api/opensky"
         },
         {
+            "source": "/api/adsb",
+            "destination": "/api/adsb"
+        },
+        {
             "source": "/api/news",
             "destination": "/api/news"
         },

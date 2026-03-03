@@ -438,6 +438,17 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
         [news, k24News, selectedNews]
     )
 
+    // Auto-expand panel when a news marker is clicked on the map
+    useEffect(() => {
+        if (selectedItem) {
+            setCollapsed(false)
+            // Switch to the local-sources tab so the ArticleView is visible
+            if (newsFilter === 'world') {
+                setNewsFilter('rudaw')
+            }
+        }
+    }, [selectedItem, newsFilter, setNewsFilter])
+
     const handleSelect = useCallback((id, lat, lng) => {
         selectNews(id)
         window.dispatchEvent(

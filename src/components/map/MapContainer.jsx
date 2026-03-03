@@ -55,13 +55,13 @@ const MapContainer = ({ isDark = true }) => {
     // The mobile latitude is nudged north so the map view sits higher.
     const center = isMobile ? [36.6, 44.0] : [36.35, 44.2]
     const defaultZoom = isMobile ? 6.8 : 7.2
-    const minZoom = 4
+    const minZoom = 3
     const maxZoom = 14
 
-    // Hard clamp to MENA bbox — matches the API bounding box exactly
+    // Hard clamp to EMEA bbox — covers Europe, Middle East & Africa
     const maxBounds = [
-        [10.0, 25.0], // SW — Yemen / Libya
-        [42.0, 63.0], // NE — Turkey / Pakistan border
+        [-40.0, -30.0], // SW — South Africa / Atlantic
+        [75.0,  68.0],  // NE — Arctic Scandinavia / Central Asia
     ]
 
     const mapBg = isDark ? '#0a0e1a' : '#e8edf2'
