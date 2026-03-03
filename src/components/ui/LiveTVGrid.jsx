@@ -15,7 +15,7 @@ const CHANNELS = [
     {
         id: 'rudaw',
         name: 'Rudaw TV',
-        youtubeId: 'dp1lS8UxfsU',   // Rudaw live
+        youtubeId: 'XEvUbTV-3I8',   // Rudaw live
         accentColor: '#f5c518',
     },
     {
