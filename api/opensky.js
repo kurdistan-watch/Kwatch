@@ -23,7 +23,11 @@ async function getAccessToken() {
     const clientId = process.env.OPENSKY_USERNAME
     const clientSecret = process.env.OPENSKY_PASSWORD
 
-    if (!clientId || !clientSecret) return null
+    if (!clientId || !clientSecret) {
+        console.warn('[api/opensky] Missing credentials — OPENSKY_USERNAME or OPENSKY_PASSWORD not set. Falling back to anonymous.')
+        return null
+    }
+    console.info(`[api/opensky] Using credentials for client_id: ${clientId}`)
 
     // Return cached token if still valid (30s safety buffer)
     if (_cachedToken && Date.now() < _tokenExpiry) return _cachedToken
@@ -49,7 +53,8 @@ async function getAccessToken() {
             )
 
             if (!resp.ok) {
-                console.error(`[api/opensky] Token fetch failed: HTTP ${resp.status}`)
+                const errBody = await resp.text().catch(() => '')
+                console.error(`[api/opensky] Token fetch failed: HTTP ${resp.status} — ${errBody.slice(0, 300)}`)
                 return null
             }
 
@@ -85,7 +90,12 @@ export default async function handler(req, res) {
         // Build request headers
         const headers = { Accept: 'application/json' }
         const token = await getAccessToken()
-        if (token) headers['Authorization'] = `Bearer ${token}`
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`
+            console.info('[api/opensky] Sending authenticated request')
+        } else {
+            console.warn('[api/opensky] Sending ANONYMOUS request — no token available')
+        }
 
         const controller = new AbortController()
         const timeoutId  = setTimeout(() => controller.abort(), 10_000)
