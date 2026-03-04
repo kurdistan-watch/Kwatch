@@ -4,7 +4,9 @@ import axios from 'axios'
 // In production, requests hit Vercel serverless functions at /api/opensky and
 // /api/planespotters. In dev, Vite's dev-server proxy forwards these to the
 // real upstream APIs. Auth is handled server-side in both cases.
-const api = axios.create({ timeout: 15_000 })
+// Timeout must be >= the serverless function's internal fetch timeout (25s)
+// plus token-fetch overhead — 29s gives a safe margin under Vercel's 30s limit.
+const api = axios.create({ timeout: 29_000 })
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -32,8 +34,8 @@ const M_TO_FT = 3.28084
 const MS_TO_KT = 1.94384
 const FT_PER_MIN = 196.85 // m/s → ft/min
 
-const MAX_RETRIES = 3
-const BASE_DELAY_MS = 1000 // 1 s → 2 s → 4 s
+const MAX_RETRIES = 1    // OpenSky is slow — one retry is enough, avoid long stalls
+const BASE_DELAY_MS = 3000 // wait 3s before retry
 
 // ─── OpenSky state-vector field indices ───────────────────────────────────────
 // https://openskynetwork.github.io/opensky-api/rest.html#response
