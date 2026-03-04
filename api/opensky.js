@@ -98,7 +98,7 @@ export default async function handler(req, res) {
         }
 
         const controller = new AbortController()
-        const timeoutId  = setTimeout(() => controller.abort(), 10_000)
+        const timeoutId  = setTimeout(() => controller.abort(), 25_000)
 
         const upstream = await fetch(openskyUrl, { headers, signal: controller.signal })
         clearTimeout(timeoutId)
@@ -118,7 +118,7 @@ export default async function handler(req, res) {
         res.setHeader('Content-Type', 'application/json')
         return res.status(200).json(data)
     } catch (err) {
-        console.error('[api/opensky] Handler error:', err.name === 'AbortError' ? 'fetch timed out after 10 s' : err.message)
+        console.error('[api/opensky] Handler error:', err.name === 'AbortError' ? 'fetch timed out after 25 s' : err.message)
         return res.status(502).json({ error: 'Failed to reach OpenSky Network', detail: err.name === 'AbortError' ? 'upstream timeout' : err.message })
     }
 }
