@@ -58,10 +58,11 @@ const MapContainer = ({ isDark = true }) => {
     const minZoom = 3
     const maxZoom = 14
 
-    // Hard clamp to EMEA bbox — covers Europe, Middle East & Africa
+    // Soft bounds covering EMEA + Asia — prevents panning to the Americas or
+    // deep Pacific but keeps full EMEA and Asian coverage accessible.
     const maxBounds = [
         [-40.0, -30.0], // SW — South Africa / Atlantic
-        [75.0,  68.0],  // NE — Arctic Scandinavia / Central Asia
+        [75.0, 155.0],  // NE — Arctic Scandinavia / East Asia (Japan/Korea/SE Asia)
     ]
 
     const mapBg = isDark ? '#0a0e1a' : '#e8edf2'

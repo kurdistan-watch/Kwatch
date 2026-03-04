@@ -9,7 +9,7 @@ export const EMEA_BBOX = {
     lamin: -35.0,
     lomin: -25.0,
     lamax: 72.0,
-    lomax: 63.0,
+    lomax: 150.0,
 }
 
 export const MAJOR_AIRPORTS = [

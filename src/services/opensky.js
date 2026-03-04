@@ -13,18 +13,19 @@ const api = axios.create({ timeout: 15_000 })
 const BASE_URL = '/api/opensky'
 
 /**
- * EMEA (Europe, Middle East & Africa) bounding box
+ * EMEA + Asia bounding box
  * Covers: All of Europe (incl. Scandinavia & Iceland), North Africa,
  *         Sub-Saharan Africa, Arabian Peninsula, Levant, Turkey,
- *         Iran, Gulf states, Central Asia borders
+ *         Iran, Gulf states, Central Asia, South Asia, Southeast Asia,
+ *         East Asia (China, Japan, Korea)
  *   lat: -35°S (South Africa) → 72°N (Northern Scandinavia)
- *   lon: -25°W (Iceland / W. Africa) → 63°E (Pakistan border)
+ *   lon: -25°W (Iceland / W. Africa) → 150°E (Japan / East Australia)
  */
 const BBOX = {
     lamin: -35.0,
     lomin: -25.0,
     lamax: 72.0,
-    lomax: 63.0,
+    lomax: 150.0,
 }
 
 const M_TO_FT = 3.28084

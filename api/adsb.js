@@ -3,8 +3,8 @@
 //
 // • Proxies requests to the free, open adsb.lol API (https://api.adsb.lol).
 // • adsb.lol is API-compatible with ADS-B Exchange and requires NO API key.
-// • Covers the EMEA region by querying center points SEQUENTIALLY in small
-//   batches with delays between batches to stay within dynamic rate limits.
+// • Covers the EMEA + Asia region by querying center points SEQUENTIALLY in
+//   small batches with delays between batches to stay within dynamic rate limits.
 // • De-duplicates aircraft by ICAO24 hex.
 // • Filters to MILITARY aircraft only — OpenSky already covers civilian traffic.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -126,6 +126,26 @@ const EMEA_CENTERS = [
     { lat: '-10.0', lon: '40.0' },  // Tanzania / Mozambique
     { lat: '-33.0', lon: '25.0' },  // South Africa
     { lat: '64.0', lon: '-18.0' },  // Iceland
+    // ── Priority 6: South Asia ───────────────────────────────────────────
+    { lat: '30.0', lon: '70.0'  },  // Pakistan / Afghanistan
+    { lat: '22.0', lon: '78.0'  },  // India central
+    { lat: '28.0', lon: '84.0'  },  // Nepal / North India
+    { lat: '13.0', lon: '80.0'  },  // South India / Sri Lanka
+    // ── Priority 7: Central & East Asia ─────────────────────────────────
+    { lat: '43.0', lon: '76.0'  },  // Kazakhstan / Kyrgyzstan
+    { lat: '40.0', lon: '90.0'  },  // Xinjiang / West China
+    { lat: '35.0', lon: '105.0' },  // China central
+    { lat: '50.0', lon: '100.0' },  // Mongolia / South Siberia
+    { lat: '60.0', lon: '80.0'  },  // Western Siberia
+    { lat: '60.0', lon: '110.0' },  // Eastern Siberia
+    { lat: '35.0', lon: '135.0' },  // Japan
+    { lat: '37.0', lon: '127.0' },  // Korea
+    { lat: '22.0', lon: '114.0' },  // South China / Hong Kong
+    // ── Priority 8: Southeast Asia ───────────────────────────────────────
+    { lat: '16.0', lon: '100.0' },  // Thailand / Indochina
+    { lat: '10.0', lon: '106.0' },  // Vietnam / Cambodia
+    { lat: '3.0',  lon: '110.0' },  // Malaysia / Borneo
+    { lat: '-6.0', lon: '107.0' },  // Java / Indonesia west
 ]
 
 const DEFAULT_DIST = '250'   // nautical miles
@@ -227,7 +247,7 @@ export default async function handler(req, res) {
     }
 
     console.info(
-        `[api/adsb] ✅ ${allAircraft.length} military aircraft from ${zonesCompleted}/${centers.length} zones` +
+        `[api/adsb] ✅ ${allAircraft.length} military aircraft from ${zonesCompleted}/${centers.length} EMEA+Asia zones` +
         (rateLimitHit ? ' (stopped early — rate limited by adsb.lol)' : '')
     )
 
