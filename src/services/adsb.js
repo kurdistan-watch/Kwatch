@@ -191,7 +191,7 @@ export const fetchFlightsADSB = async () => {
                     !f.onGround
             )
 
-        console.info(`[adsb] ✅ Military flights received: ${flights.length}`)
+        console.info(`[adsb] ✅ Airborne flights received: ${flights.length}`)
         _lastKnownFlights = flights
         return flights
     } catch (err) {

@@ -50,8 +50,6 @@ const MILITARY_CALLSIGN_PREFIXES = [
   'JAF', 'RJAF', 'SAF', 'PAF',
 ];
 
-const MILITARY_ORIGIN_COUNTRIES = ['Iran', 'Russia'];
-
 const COMMERCIAL_AIRLINE_PREFIXES = [
   'KAR', 'IRY', 'UR', 'PC', 'TK', 'EK', 'FZ', 'WS', 'GF',
 ];
@@ -88,7 +86,6 @@ const isMilitary = (f) => {
   if (hex.startsWith('ae')) return true;                                                          // US military ICAO24 block
   if (hex.startsWith('43') && f.originCountry === 'United Kingdom') return true;                  // UK military ICAO24 block
   if (hex.startsWith('a') && f.originCountry === 'United States' && !isCommercialCallsign(cs)) return true;
-  if (MILITARY_ORIGIN_COUNTRIES.includes(f.originCountry)) return true;
 
   return false;
 };

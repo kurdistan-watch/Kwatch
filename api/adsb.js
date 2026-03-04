@@ -230,8 +230,7 @@ export default async function handler(req, res) {
             if (rateLimited) rateLimitHit = true
             for (const aircraft of ac) {
                 const hex = (aircraft.hex ?? '').toLowerCase()
-                // Only keep military aircraft — OpenSky covers civilian traffic
-                if (hex && !seen.has(hex) && isMilitaryAircraft(aircraft)) {
+                if (hex && !seen.has(hex)) {
                     seen.add(hex)
                     allAircraft.push(aircraft)
                 }
@@ -247,7 +246,7 @@ export default async function handler(req, res) {
     }
 
     console.info(
-        `[api/adsb] ✅ ${allAircraft.length} military aircraft from ${zonesCompleted}/${centers.length} EMEA+Asia zones` +
+        `[api/adsb] ✅ ${allAircraft.length} aircraft from ${zonesCompleted}/${centers.length} EMEA+Asia zones` +
         (rateLimitHit ? ' (stopped early — rate limited by adsb.lol)' : '')
     )
 

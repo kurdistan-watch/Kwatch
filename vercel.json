@@ -4,14 +4,9 @@
     "outputDirectory": "dist",
     "framework": "vite",
     "functions": {
-        "api/opensky.js": { "maxDuration": 30 },
         "api/adsb.js":    { "maxDuration": 30 }
     },
     "rewrites": [
-        {
-            "source": "/api/opensky",
-            "destination": "/api/opensky"
-        },
         {
             "source": "/api/adsb",
             "destination": "/api/adsb"

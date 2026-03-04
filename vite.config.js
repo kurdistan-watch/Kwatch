@@ -21,14 +21,6 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            // In dev mode, proxy /api/opensky to the real OpenSky REST endpoint.
-            // In production, Vercel serverless function handles this route.
-            '/api/opensky': {
-                target: 'https://opensky-network.org',
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api\/opensky/, '/api/states/all'),
-                secure: true,
-            },
             // Proxy Planespotters photo API — avoids browser CORS block
             '/api/planespotters': {
                 target: 'https://api.planespotters.net',
@@ -36,8 +28,7 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/api\/planespotters/, ''),
                 secure: true,
             },
-            // /api/news and /api/flash are handled by Vercel serverless functions
-            // (api/news.js, api/flash.js) via `vercel dev`. No Vite proxy needed.
+            // /api/news, /api/flash, /api/adsb etc. are handled by `vercel dev`
         },
     },
 })
