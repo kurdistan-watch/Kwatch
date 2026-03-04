@@ -136,7 +136,13 @@ export const useFlightPoll = ({
     // Merge + classify + alert — called after either source updates
     const mergeAndPublish = useCallback(() => {
         const merged  = mergeFlights(lastAdsbRef.current, lastOpenskyRef.current)
-        const flights = classifyFlights(merged)
+        const classified = classifyFlights(merged)
+
+        // ADS-B flights must be classified first, then only MILITARY ones are kept.
+        // OpenSky flights are all rendered regardless of classification.
+        const flights = classified.filter(
+            (f) => f.source !== 'adsb' || f.classification === 'MILITARY'
+        )
 
         setFlightsRef.current(flights)
         setLastUpdated(new Date())

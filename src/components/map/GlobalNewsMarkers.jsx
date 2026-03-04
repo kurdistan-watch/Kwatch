@@ -1,5 +1,5 @@
 import React from 'react'
-import { Marker, Popup, LayerGroup } from 'react-leaflet'
+import { Marker, LayerGroup, Tooltip, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import useFlightStore from '@/store/useFlightStore'
 
@@ -15,37 +15,42 @@ const buildOutletIcon = (emoji) =>
     })
 
 const OUTLET_ICONS = {
-    'Al Jazeera': buildOutletIcon('📡'),
+    'Al Jazeera': buildOutletIcon('🗣'),
     'CNN':        buildOutletIcon('🔴'),
     'Reuters':    buildOutletIcon('🔷'),
     'Fox News':   buildOutletIcon('🦊'),
-    'BBC':        buildOutletIcon('🌐'),
+    'BBC':        buildOutletIcon('ℹ️'),
 }
 const FALLBACK_ICON = buildOutletIcon('📰')
 
 // ── Single marker ─────────────────────────────────────────────────────────────
 
 const GlobalNewsMarker = React.memo(({ item }) => {
-    const { geoRegion, source, title, link } = item
+    const map        = useMap()
+    const selectNews = useFlightStore((s) => s.selectNews)
+
+    const { geoRegion, source, title } = item
     const position = [geoRegion.lat, geoRegion.lng]
     const icon     = OUTLET_ICONS[source] ?? FALLBACK_ICON
 
+    const handleClick = () => {
+        selectNews(item.id)
+        map.flyTo([geoRegion.lat, geoRegion.lng], Math.max(map.getZoom(), 6), { duration: 1.2 })
+    }
+
     return (
-        <Marker position={position} icon={icon}>
-            <Popup>
-                <div style={{ maxWidth: 240 }}>
-                    <strong style={{ fontSize: '0.75rem', opacity: 0.7 }}>{source}</strong>
-                    <p style={{ margin: '4px 0', fontSize: '0.82rem', lineHeight: 1.4 }}>{title}</p>
-                    <a
-                        href={link}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ fontSize: '0.75rem', color: '#f5c518' }}
-                    >
-                        Read →
-                    </a>
-                </div>
-            </Popup>
+        <Marker position={position} icon={icon} eventHandlers={{ click: handleClick }}>
+            <Tooltip
+                direction="top"
+                offset={[0, -16]}
+                className="news-tooltip"
+            >
+                <span className="font-semibold">{source}</span>
+                <br />
+                <span className="text-xs opacity-80">
+                    {title.length > 60 ? title.slice(0, 57) + '…' : title}
+                </span>
+            </Tooltip>
         </Marker>
     )
 })

@@ -133,7 +133,12 @@ NewsListItem.displayName = 'NewsListItem'
 
 // ── Article detail view ──────────────────────────────────────────────────────
 
-const ArticleView = ({ item, onBack }) => (
+const ArticleView = ({ item, onBack }) => {
+    const sourceName = item.source === 'Kurdistan 24' ? 'Kurdistan 24'
+        : item.source ? item.source
+        : 'Rudaw'
+
+    return (
     <div className="flex flex-col h-full">
         {/* Back button */}
         <button
@@ -145,9 +150,16 @@ const ArticleView = ({ item, onBack }) => (
 
         <div className="flex-1 overflow-y-auto px-4 pb-4">
             {/* Location pill */}
-            <span className="inline-block text-[10px] uppercase tracking-wider text-slate-400 bg-slate-800 rounded-full px-2.5 py-0.5 mb-2">
-                📍 {item.locationName}
-            </span>
+            {item.locationName && (
+                <span className="inline-block text-[10px] uppercase tracking-wider text-slate-400 bg-slate-800 rounded-full px-2.5 py-0.5 mb-2">
+                    📍 {item.locationName}
+                </span>
+            )}
+            {item.geoRegion && !item.locationName && (
+                <span className="inline-block text-[10px] uppercase tracking-wider text-slate-400 bg-slate-800 rounded-full px-2.5 py-0.5 mb-2">
+                    📍 {item.geoRegion.name}
+                </span>
+            )}
 
             {/* Published time */}
             <div className="text-[11px] text-slate-500 mb-3">
@@ -160,9 +172,11 @@ const ArticleView = ({ item, onBack }) => (
             </h2>
 
             {/* Description */}
-            <p className="text-sm leading-[1.7] text-slate-400 mb-4">
-                {item.description}
-            </p>
+            {item.description && (
+                <p className="text-sm leading-[1.7] text-slate-400 mb-4">
+                    {item.description}
+                </p>
+            )}
 
             {/* Divider */}
             <div className="border-t border-slate-700/60 my-4" />
@@ -177,11 +191,12 @@ const ArticleView = ({ item, onBack }) => (
                            hover:bg-yellow-500 hover:text-slate-900
                            transition-all duration-200 text-sm font-medium"
             >
-                Read Full Story on Rudaw →
+                Read Full Story on {sourceName} →
             </a>
         </div>
     </div>
-)
+    )
+}
 
 // ── Flash / breaking headline list item ──────────────────────────────────────
 
@@ -223,7 +238,7 @@ FlashListItem.displayName = 'FlashListItem'
 
 // ── World breaking headline list item ────────────────────────────────────────
 
-const WorldBreakingListItem = React.memo(({ item }) => {
+const WorldBreakingListItem = React.memo(({ item, onSelect }) => {
     const [ago, setAgo] = useState(() => timeAgo(item.pubDate))
 
     useEffect(() => {
@@ -231,21 +246,20 @@ const WorldBreakingListItem = React.memo(({ item }) => {
         return () => clearInterval(id)
     }, [item.pubDate])
 
-    const handleMapCenter = useCallback(() => {
-        if (item.geoRegion) {
-            window.dispatchEvent(
-                new CustomEvent('kwatch:center-news', {
-                    detail: { lat: item.geoRegion.lat, lng: item.geoRegion.lng },
-                })
-            )
+    const handleClick = useCallback(() => {
+        if (onSelect) {
+            const lat = item.geoRegion?.lat
+            const lng = item.geoRegion?.lng
+            onSelect(item.id, lat, lng)
         }
-    }, [item.geoRegion])
+    }, [item, onSelect])
 
     const emoji = OUTLET_EMOJI[item.source] ?? '📰'
 
     return (
-        <div
-            className="px-3 py-2 transition-all duration-150 hover:bg-red-950/30 group"
+        <button
+            onClick={handleClick}
+            className="w-full text-left px-3 py-2 transition-all duration-150 hover:bg-red-950/30 group cursor-pointer"
             style={{ borderLeft: '3px solid #ef4444' }}
         >
             <div className="flex items-center gap-1.5 mb-0.5">
@@ -253,24 +267,16 @@ const WorldBreakingListItem = React.memo(({ item }) => {
                     {emoji} {item.source}
                 </span>
                 {item.geoRegion && (
-                    <button
-                        onClick={handleMapCenter}
-                        className="ml-auto text-[10px] text-slate-600 hover:text-yellow-400 transition-colors"
-                    >
+                    <span className="ml-auto text-[10px] text-slate-600">
                         📍 {item.geoRegion.name}
-                    </button>
+                    </span>
                 )}
             </div>
-            <a
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                className="block text-[13px] text-white font-medium leading-snug line-clamp-2 group-hover:text-red-300 transition-colors"
-            >
+            <div className="text-[13px] text-white font-medium leading-snug line-clamp-2 group-hover:text-red-300 transition-colors">
                 {item.title}
-            </a>
+            </div>
             <div className="text-[10px] text-slate-500 mt-0.5">{ago}</div>
-        </div>
+        </button>
     )
 })
 
@@ -278,7 +284,7 @@ WorldBreakingListItem.displayName = 'WorldBreakingListItem'
 
 // ── Global (world) news list item ────────────────────────────────────────────
 
-const GlobalNewsListItem = React.memo(({ item }) => {
+const GlobalNewsListItem = React.memo(({ item, onSelect }) => {
     const [ago, setAgo] = useState(() => timeAgo(item.pubDate))
 
     // Live-updating time-ago
@@ -288,20 +294,25 @@ const GlobalNewsListItem = React.memo(({ item }) => {
     }, [item.pubDate])
 
     const handleClick = useCallback(() => {
-        if (item.geoRegion) {
+        if (onSelect) {
+            const lat = item.geoRegion?.lat
+            const lng = item.geoRegion?.lng
+            onSelect(item.id, lat, lng)
+        } else if (item.geoRegion) {
             window.dispatchEvent(
                 new CustomEvent('kwatch:center-news', {
                     detail: { lat: item.geoRegion.lat, lng: item.geoRegion.lng },
                 })
             )
         }
-    }, [item.geoRegion])
+    }, [item, onSelect])
 
     const emoji = OUTLET_EMOJI[item.source] ?? '📰'
 
     return (
-        <div
-            className="px-3 py-2.5 transition-all duration-150 hover:bg-slate-800/50 group"
+        <button
+            onClick={handleClick}
+            className="w-full text-left px-3 py-2.5 transition-all duration-150 hover:bg-slate-800/50 group cursor-pointer"
             style={{ borderLeft: '3px solid #475569' }}
         >
             {/* Outlet badge */}
@@ -310,30 +321,21 @@ const GlobalNewsListItem = React.memo(({ item }) => {
                     {emoji} {item.source}
                 </span>
                 {item.geoRegion && (
-                    <button
-                        onClick={handleClick}
-                        title={`Pan to ${item.geoRegion.name}`}
-                        className="ml-auto text-[10px] text-slate-600 hover:text-yellow-400 transition-colors"
-                    >
+                    <span className="ml-auto text-[10px] text-slate-600">
                         📍 {item.geoRegion.name}
-                    </button>
+                    </span>
                 )}
             </div>
 
-            {/* Title + external link */}
-            <a
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block text-sm text-white font-medium leading-snug line-clamp-2 group-hover:text-slate-300 transition-colors"
-            >
+            {/* Title */}
+            <div className="text-sm text-white font-medium leading-snug line-clamp-2 group-hover:text-slate-300 transition-colors">
                 {item.title}
-            </a>
+            </div>
 
             <div className="text-[10px] text-slate-500 mt-1">
                 {ago}
             </div>
-        </div>
+        </button>
     )
 })
 
@@ -341,7 +343,7 @@ GlobalNewsListItem.displayName = 'GlobalNewsListItem'
 
 // ── Kurdistan 24 list item ────────────────────────────────────────────────────
 
-const K24ListItem = React.memo(({ item }) => {
+const K24ListItem = React.memo(({ item, onSelect }) => {
     const [ago, setAgo] = useState(() => timeAgo(item.pubDate))
 
     useEffect(() => {
@@ -350,10 +352,8 @@ const K24ListItem = React.memo(({ item }) => {
     }, [item.pubDate])
 
     return (
-        <a
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
+        <button
+            onClick={() => onSelect && onSelect(item.id, item.lat, item.lng)}
             className="block w-full text-left px-3 py-2.5 transition-all duration-150
                        hover:bg-teal-950/30 group cursor-pointer"
             style={{ borderLeft: '3px solid #0d9488' }}
@@ -367,7 +367,7 @@ const K24ListItem = React.memo(({ item }) => {
                 {item.title}
             </div>
             <div className="text-[10px] text-slate-500 mt-1">{ago}</div>
-        </a>
+        </button>
     )
 })
 
@@ -434,26 +434,42 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
     }, [lastUpdated])
 
     const selectedItem = useMemo(
-        () => news.find((n) => n.id === selectedNews) ?? k24News.find((n) => n.id === selectedNews) ?? null,
-        [news, k24News, selectedNews]
+        () =>
+            news.find((n) => n.id === selectedNews) ??
+            k24News.find((n) => n.id === selectedNews) ??
+            globalNews.find((n) => n.id === selectedNews) ??
+            null,
+        [news, k24News, globalNews, selectedNews]
     )
 
-    // Auto-expand panel when a news marker is clicked on the map
+    // Determine which tab an article belongs to
+    const selectedItemSource = useMemo(() => {
+        if (!selectedItem) return null
+        if (news.find((n) => n.id === selectedItem.id) || k24News.find((n) => n.id === selectedItem.id)) return 'local'
+        if (globalNews.find((n) => n.id === selectedItem.id)) return 'world'
+        return null
+    }, [selectedItem, news, k24News, globalNews])
+
+    // Auto-expand panel when a news marker is clicked on the map, and switch to
+    // the correct tab so the ArticleView is visible
     useEffect(() => {
         if (selectedItem) {
             setCollapsed(false)
-            // Switch to the local-sources tab so the ArticleView is visible
-            if (newsFilter === 'world') {
+            if (selectedItemSource === 'local' && newsFilter === 'world') {
                 setNewsFilter('rudaw')
+            } else if (selectedItemSource === 'world' && newsFilter === 'rudaw') {
+                setNewsFilter('world')
             }
         }
-    }, [selectedItem, newsFilter, setNewsFilter])
+    }, [selectedItem, selectedItemSource, newsFilter, setNewsFilter])
 
     const handleSelect = useCallback((id, lat, lng) => {
         selectNews(id)
-        window.dispatchEvent(
-            new CustomEvent('kwatch:center-news', { detail: { lat, lng } })
-        )
+        if (lat != null && lng != null) {
+            window.dispatchEvent(
+                new CustomEvent('kwatch:center-news', { detail: { lat, lng } })
+            )
+        }
     }, [selectNews])
 
     const handleBack = useCallback(() => clearSelected(), [clearSelected])
@@ -632,7 +648,7 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                         <div className="divide-y divide-slate-800/60">
                                             {rudawTabArticles.map((item) =>
                                                 item._src === 'k24' ? (
-                                                    <K24ListItem key={item.id} item={item} />
+                                                    <K24ListItem key={item.id} item={item} onSelect={handleSelect} />
                                                 ) : (
                                                     <NewsListItem key={item.id} item={item} onSelect={handleSelect} />
                                                 )
@@ -659,7 +675,7 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                         <div className="overflow-y-auto" style={{ maxHeight: 'calc(100% - 30px)' }}>
                                             <div className="divide-y divide-red-900/20">
                                                 {worldBreaking.map((item) => (
-                                                    <WorldBreakingListItem key={item.id} item={item} />
+                                                    <WorldBreakingListItem key={item.id} item={item} onSelect={handleSelect} />
                                                 ))}
                                             </div>
                                         </div>
@@ -694,7 +710,7 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                     {worldArticles.length > 0 && (
                                         <div className="divide-y divide-slate-800/60">
                                             {worldArticles.map((item) => (
-                                                <GlobalNewsListItem key={item.id} item={item} />
+                                                <GlobalNewsListItem key={item.id} item={item} onSelect={handleSelect} />
                                             ))}
                                         </div>
                                     )}
@@ -761,9 +777,9 @@ const NewsPanel = ({ loading, lastUpdated, flashLoading }) => {
                                                     onSelect={handleSelect}
                                                 />
                                             ) : item._type === 'k24' ? (
-                                                <K24ListItem key={item.id} item={item} />
+                                                <K24ListItem key={item.id} item={item} onSelect={handleSelect} />
                                             ) : (
-                                                <GlobalNewsListItem key={item.id} item={item} />
+                                                <GlobalNewsListItem key={item.id} item={item} onSelect={handleSelect} />
                                             )
                                         )}
                                     </div>
