@@ -2,76 +2,29 @@
 // Vercel Serverless Function — OpenSky Network proxy
 //
 // • Accepts the same query-params the client already sends (lamin, lomin, etc.)
-// • Handles OAuth2 client_credentials token fetch server-side so credentials
-//   never leave the backend.
-// • Caches the Bearer token in module-level vars (shared across warm invocations).
+// • Uses HTTP Basic Auth (username:password) — simpler and more reliable from
+//   Vercel's infrastructure than OAuth2 client_credentials token exchange.
 // • Returns the raw OpenSky JSON to the client with a short Cache-Control header
 //   so Vercel's CDN absorbs duplicate requests within the same 10s window.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── Token cache (lives for the lifetime of the warm Lambda instance) ─────────
-let _cachedToken = null
-let _tokenExpiry = 0 // Unix ms
-let _tokenPromise = null // in-flight fetch — prevents concurrent token requests
-
 /**
- * Fetches (or returns cached) OAuth2 Bearer token from OpenSky's Keycloak.
- * Falls back to null (anonymous access) if credentials are missing or the
- * token request fails.
+ * Returns a Basic Auth header value from env credentials, or null if missing.
+ * OpenSky supports HTTP Basic Auth directly on the REST API — no token
+ * exchange needed, and it works reliably from all server IPs including Vercel.
  */
-async function getAccessToken() {
-    const clientId = process.env.OPENSKY_USERNAME
-    const clientSecret = process.env.OPENSKY_PASSWORD
+function getBasicAuthHeader() {
+    const username = process.env.OPENSKY_USERNAME
+    const password = process.env.OPENSKY_PASSWORD
 
-    if (!clientId || !clientSecret) {
+    if (!username || !password) {
         console.warn('[api/opensky] Missing credentials — OPENSKY_USERNAME or OPENSKY_PASSWORD not set. Falling back to anonymous.')
         return null
     }
-    console.info(`[api/opensky] Using credentials for client_id: ${clientId}`)
 
-    // Return cached token if still valid (30s safety buffer)
-    if (_cachedToken && Date.now() < _tokenExpiry) return _cachedToken
-
-    // If a fetch is already in-flight, wait for it — don't issue a second request
-    if (_tokenPromise) return _tokenPromise
-
-    const body = new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret,
-    })
-
-    _tokenPromise = (async () => {
-        try {
-            const resp = await fetch(
-                'https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token',
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: body.toString(),
-                }
-            )
-
-            if (!resp.ok) {
-                const errBody = await resp.text().catch(() => '')
-                console.error(`[api/opensky] Token fetch failed: HTTP ${resp.status} — ${errBody.slice(0, 300)}`)
-                return null
-            }
-
-            const data = await resp.json()
-            _cachedToken = data.access_token
-            _tokenExpiry = Date.now() + (data.expires_in - 30) * 1000
-            console.info(`[api/opensky] Token obtained — expires in ${data.expires_in}s`)
-            return _cachedToken
-        } catch (err) {
-            console.error('[api/opensky] Token fetch error:', err.message)
-            return null
-        } finally {
-            _tokenPromise = null // allow re-fetch on next expiry
-        }
-    })()
-
-    return _tokenPromise
+    const encoded = Buffer.from(`${username}:${password}`).toString('base64')
+    console.info(`[api/opensky] Using Basic Auth for user: ${username}`)
+    return `Basic ${encoded}`
 }
 
 // ── Main handler ─────────────────────────────────────────────────────────────
@@ -89,12 +42,12 @@ export default async function handler(req, res) {
 
         // Build request headers
         const headers = { Accept: 'application/json' }
-        const token = await getAccessToken()
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`
-            console.info('[api/opensky] Sending authenticated request')
+        const basicAuth = getBasicAuthHeader()
+        if (basicAuth) {
+            headers['Authorization'] = basicAuth
+            console.info('[api/opensky] Sending authenticated request (Basic Auth)')
         } else {
-            console.warn('[api/opensky] Sending ANONYMOUS request — no token available')
+            console.warn('[api/opensky] Sending ANONYMOUS request — no credentials available')
         }
 
         const controller = new AbortController()
