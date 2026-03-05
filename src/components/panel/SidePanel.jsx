@@ -1,6 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import useFlightStore from '@/store/useFlightStore'
 import FlightCard from './FlightCard'
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { cn } from '@/lib/utils'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -26,13 +29,15 @@ const FlightRow = React.memo(({ flight, isSelected, onSelect }) => {
         : null
 
     return (
-        <button
+        <Button
+            variant="ghost"
             onClick={() => onSelect(flight.icao24)}
-            className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-start gap-2 group
-                ${isSelected
+            className={cn(
+                'w-full h-auto text-left px-3 py-2 rounded-md flex items-start gap-2 justify-start',
+                isSelected
                     ? 'bg-slate-700/80 dark:bg-slate-700/80 ring-1 ring-slate-500'
                     : 'hover:bg-slate-200/80 dark:hover:bg-slate-800/70'
-                }`}
+            )}
         >
             {/* Color dot + pulse indicator */}
             <div className="relative mt-0.5 shrink-0">
@@ -87,7 +92,7 @@ const FlightRow = React.memo(({ flight, isSelected, onSelect }) => {
                     ))}
                 </div>
             )}
-        </button>
+        </Button>
     )
 })
 
@@ -156,16 +161,17 @@ const SidePanel = () => {
             style={{ overflow: 'visible' }}
         >
             {/* Toggle tab on left edge */}
-            <button
+            <Button
+                variant="ghost"
                 onClick={() => setCollapsed((c) => !c)}
-                className="absolute -left-6 top-1/2 -translate-y-1/2 w-6 h-14 flex items-center justify-center
-                           bg-white/90 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 border-r-0 rounded-l-md
-                           text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/90 transition-colors
-                           z-[1001] select-none"
+                className="absolute -left-6 top-1/2 -translate-y-1/2 w-6 h-14 rounded-l-md rounded-r-none
+                           bg-white/90 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 border-r-0
+                           text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200
+                           z-[1001] select-none p-0"
                 title={collapsed ? 'Open panel' : 'Collapse panel'}
             >
                 <span className="text-xs">{collapsed ? '◀' : '▶'}</span>
-            </button>
+            </Button>
 
             {/* Panel body */}
             <div
@@ -203,7 +209,7 @@ const SidePanel = () => {
                 </div>
 
                 {/* ── BODY ─────────────────────────────────────── */}
-                <div className="flex-1 overflow-y-auto min-h-0 px-2 py-2">
+                <ScrollArea className="flex-1 min-h-0 px-2 py-2">
                     {selectedFlight ? (
                         <div className="relative px-2 pt-1">
                             <FlightCard flight={selectedFlight} />
@@ -225,7 +231,7 @@ const SidePanel = () => {
                             <span>No aircraft in view</span>
                         </div>
                     )}
-                </div>
+                </ScrollArea>
 
                 {/* ── FOOTER ───────────────────────────────────── */}
                 <div className="px-4 py-2 border-t border-slate-200 dark:border-slate-700/60 shrink-0 flex items-center justify-between">

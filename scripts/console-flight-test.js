@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * ═══════════════════════════════════════════════════════════════════════════
  * Kwatch — Browser DevTools Console Flight Render Test

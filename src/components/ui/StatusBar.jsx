@@ -1,5 +1,7 @@
 import useFlightStore from '@/store/useFlightStore'
 import AlertBadge from './AlertBadge'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 const StatusBar = ({ isDark, onToggleTheme }) => {
     const flightCount  = useFlightStore((s) => s.flights.length)
@@ -13,9 +15,12 @@ const StatusBar = ({ isDark, onToggleTheme }) => {
                 <div className="flex flex-col leading-none gap-0.5">
                     <div className="flex items-center gap-2">
                         <span className="text-base font-bold tracking-tight">KURDISTAN WATCH</span>
-                        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-400 tracking-widest uppercase">
+                        <Badge
+                            variant="outline"
+                            className="text-[9px] font-semibold px-1.5 py-0.5 bg-amber-500/15 border-amber-500/40 text-amber-400 tracking-widest uppercase rounded"
+                        >
                             BETA
-                        </span>
+                        </Badge>
                     </div>
                     <span className="text-[9px] text-slate-500 tracking-widest uppercase">
                         website under construction
@@ -33,28 +38,32 @@ const StatusBar = ({ isDark, onToggleTheme }) => {
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
 
                 {/* Light / dark toggle */}
-                <button
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={onToggleTheme}
                     title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                    className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-700/60 hover:bg-slate-600 transition-colors text-base leading-none select-none"
+                    className="h-7 w-7 rounded-full bg-slate-700/60 hover:bg-slate-600 text-base leading-none select-none"
                     aria-label="Toggle theme"
                 >
                     {isDark ? '☀️' : '🌙'}
-                </button>
+                </Button>
 
                 {/* Live TV toggle */}
-                <button
+                <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={toggleTVGrid}
                     title={tvGridOpen ? 'Close Live TV' : 'Open Live TV'}
-                    className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors text-base leading-none select-none ${
+                    className={`h-7 w-7 rounded-full text-base leading-none select-none transition-colors ${
                         tvGridOpen
-                            ? 'bg-yellow-500/20 border border-yellow-500/60 text-yellow-400'
+                            ? 'bg-yellow-500/20 border border-yellow-500/60 text-yellow-400 hover:bg-yellow-500/30'
                             : 'bg-slate-700/60 hover:bg-slate-600 text-slate-300'
                     }`}
                     aria-label="Toggle live TV"
                 >
                     TV
-                </button>
+                </Button>
             </div>
         </div>
     )

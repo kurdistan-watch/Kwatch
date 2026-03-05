@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import { Button } from '@/components/ui/button'
 
 /**
  * ErrorBoundary — catches render errors in any child subtree and shows a
@@ -35,13 +36,14 @@ class ErrorBoundary extends Component {
                     <p className="text-xs text-slate-500 text-center max-w-xs">
                         {this.state.error?.message ?? 'An unexpected error occurred.'}
                     </p>
-                    <button
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => this.setState({ hasError: false, error: null })}
-                        className="mt-2 px-3 py-1.5 text-xs rounded border border-slate-600
-                                   hover:border-yellow-500 hover:text-yellow-400 transition-colors"
+                        className="mt-2 border-slate-600 hover:border-yellow-500 hover:text-yellow-400"
                     >
                         Retry
-                    </button>
+                    </Button>
                 </div>
             )
         }

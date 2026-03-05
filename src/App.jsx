@@ -5,6 +5,7 @@ import AlertBadge from '@/components/ui/AlertBadge'
 import StatusBar from '@/components/ui/StatusBar'
 import LiveTVGrid from '@/components/ui/LiveTVGrid'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
+import { Toaster } from '@/components/ui/toaster'
 import { useFlightPoll } from '@/hooks/useFlightPoll'
 import { useNewsPoll } from '@/hooks/useNewsPoll'
 import { useFlashPoll } from '@/hooks/useFlashPoll'
@@ -79,6 +80,7 @@ function App() {
                     <LiveTVGrid />
                 </div>
             </main>
+            <Toaster />
             <Analytics />
         </div>
     )

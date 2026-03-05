@@ -1,5 +1,8 @@
 import React, { useMemo } from 'react'
 import useFlightStore from '@/store/useFlightStore'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 // ── Filter button definitions ─────────────────────────────────────────────────
 
@@ -56,8 +59,10 @@ const FilterBar = () => {
                 const active = filters[key] !== false
 
                 return (
-                    <button
+                    <Button
                         key={key}
+                        variant="outline"
+                        size="sm"
                         onClick={() => toggleFilter(key)}
                         title={`${active ? 'Hide' : 'Show'} ${label}`}
                         style={{
@@ -65,36 +70,31 @@ const FilterBar = () => {
                             backgroundColor: active ? `${color}26` : 'transparent',
                             color: active ? color : '#6B7280',
                         }}
-                        className={`
-                            flex items-center gap-1.5
-                            px-2.5 py-1 rounded
-                            border
-                            text-xs font-medium
-                            backdrop-blur-sm
-                            transition-all duration-150
-                            select-none
-                            hover:opacity-100
-                            ${active ? 'opacity-95' : 'opacity-60 hover:opacity-80'}
-                        `}
+                        className={cn(
+                            'h-auto px-2.5 py-1 text-xs font-medium backdrop-blur-sm',
+                            'transition-all duration-150 select-none gap-1.5',
+                            active ? 'opacity-95' : 'opacity-60 hover:opacity-80'
+                        )}
                     >
                         <span className="text-[11px] leading-none">{icon}</span>
                         <span className="leading-none">{label}</span>
-                        <span
-                            className={`ml-1 min-w-[16px] text-center rounded-full text-[10px] font-bold leading-none py-0.5 px-1
-                                ${active ? '' : 'bg-slate-200 dark:bg-slate-800'}`}
+                        <Badge
+                            className="ml-1 min-w-[16px] h-auto rounded-full text-[10px] font-bold py-0.5 px-1"
                             style={{
                                 backgroundColor: active ? `${color}33` : undefined,
                                 color: active ? color : '#6B7280',
                             }}
                         >
                             {counts[key] ?? 0}
-                        </span>
-                    </button>
+                        </Badge>
+                    </Button>
                 )
             })}
 
             {/* News toggle */}
-            <button
+            <Button
+                variant="outline"
+                size="sm"
                 onClick={() => toggleFilter('news')}
                 title={`${newsActive ? 'Hide' : 'Show'} News`}
                 style={{
@@ -102,34 +102,29 @@ const FilterBar = () => {
                     backgroundColor: newsActive ? '#f5c51826' : 'transparent',
                     color: newsActive ? '#f5c518' : '#6B7280',
                 }}
-                className={`
-                    flex items-center gap-1.5
-                    px-2.5 py-1 rounded
-                    border
-                    text-xs font-medium
-                    backdrop-blur-sm
-                    transition-all duration-150
-                    select-none
-                    hover:opacity-100
-                    ${newsActive ? 'opacity-95' : 'opacity-60 hover:opacity-80'}
-                `}
+                className={cn(
+                    'h-auto px-2.5 py-1 text-xs font-medium backdrop-blur-sm',
+                    'transition-all duration-150 select-none gap-1.5',
+                    newsActive ? 'opacity-95' : 'opacity-60 hover:opacity-80'
+                )}
             >
                 <span className="text-[11px] leading-none">📰</span>
                 <span className="leading-none">News</span>
-                <span
-                    className={`ml-1 min-w-[16px] text-center rounded-full text-[10px] font-bold leading-none py-0.5 px-1
-                        ${newsActive ? '' : 'bg-slate-200 dark:bg-slate-800'}`}
+                <Badge
+                    className="ml-1 min-w-[16px] h-auto rounded-full text-[10px] font-bold py-0.5 px-1"
                     style={{
                         backgroundColor: newsActive ? '#f5c51833' : undefined,
                         color: newsActive ? '#f5c518' : '#6B7280',
                     }}
                 >
                     {newsCount}
-                </span>
-            </button>
+                </Badge>
+            </Button>
 
             {/* Flash / Breaking news toggle */}
-            <button
+            <Button
+                variant="outline"
+                size="sm"
                 onClick={() => toggleFilter('flash')}
                 title={`${flashActive ? 'Hide' : 'Show'} Flash News`}
                 style={{
@@ -137,31 +132,24 @@ const FilterBar = () => {
                     backgroundColor: flashActive ? '#ef444426' : 'transparent',
                     color: flashActive ? '#ef4444' : '#6B7280',
                 }}
-                className={`
-                    flex items-center gap-1.5
-                    px-2.5 py-1 rounded
-                    border
-                    text-xs font-medium
-                    backdrop-blur-sm
-                    transition-all duration-150
-                    select-none
-                    hover:opacity-100
-                    ${flashActive ? 'opacity-95' : 'opacity-60 hover:opacity-80'}
-                `}
+                className={cn(
+                    'h-auto px-2.5 py-1 text-xs font-medium backdrop-blur-sm',
+                    'transition-all duration-150 select-none gap-1.5',
+                    flashActive ? 'opacity-95' : 'opacity-60 hover:opacity-80'
+                )}
             >
                 <span className="text-[11px] leading-none">🚨</span>
                 <span className="leading-none">Flash</span>
-                <span
-                    className={`ml-1 min-w-[16px] text-center rounded-full text-[10px] font-bold leading-none py-0.5 px-1
-                        ${flashActive ? '' : 'bg-slate-200 dark:bg-slate-800'}`}
+                <Badge
+                    className="ml-1 min-w-[16px] h-auto rounded-full text-[10px] font-bold py-0.5 px-1"
                     style={{
                         backgroundColor: flashActive ? '#ef444433' : undefined,
                         color: flashActive ? '#ef4444' : '#6B7280',
                     }}
                 >
                     {flashCount}
-                </span>
-            </button>
+                </Badge>
+            </Button>
         </div>
     )
 }

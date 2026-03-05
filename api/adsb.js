@@ -72,6 +72,7 @@ const isCommercialCallsign = (cs) =>
  * Returns true if the raw adsb.lol aircraft object appears to be military.
  * Mirrors the isMilitary() logic in src/services/classifier.js.
  */
+// eslint-disable-next-line no-unused-vars
 function isMilitaryAircraft(ac) {
     const cs  = (ac.flight ?? '').trim().toUpperCase()
     const hex = (ac.hex    ?? '').toLowerCase()

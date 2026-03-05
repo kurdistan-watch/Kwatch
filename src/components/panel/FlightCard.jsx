@@ -1,6 +1,10 @@
 import React, { useCallback, useMemo, useEffect, useState } from 'react'
 import useFlightStore from '@/store/useFlightStore'
 import { fetchAircraftPhoto } from '@/services/opensky'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
@@ -157,16 +161,19 @@ const FlightCard = ({ flight }) => {
     const badgeClass = CLASS_BADGE[flight.classification] ?? CLASS_BADGE.UNCLASSIFIED
 
     return (
-        <div className="text-sm text-slate-700 dark:text-slate-300 relative pb-2">
+        <Card className="text-sm text-slate-700 dark:text-slate-300 relative border-slate-700/50 bg-transparent shadow-none">
+        <CardContent className="p-0 pb-2">
 
             {/* Close / deselect */}
-            <button
+            <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => selectFlight(flight.icao24)}
                 title="Deselect aircraft"
-                className="absolute top-0 right-0 w-6 h-6 flex items-center justify-center rounded text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors text-base leading-none"
+                className="absolute top-0 right-0 h-6 w-6 rounded text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
             >
                 ✕
-            </button>
+            </Button>
 
             {/* ── 1. IDENTITY ──────────────────────────────── */}
             <SectionHeader label="Identity" />
@@ -254,13 +261,16 @@ const FlightCard = ({ flight }) => {
 
             {/* ── 4. CLASSIFICATION ────────────────────────── */}
             <SectionHeader label="Classification" />
-            <div className={`inline-flex items-center gap-1.5 border rounded px-2 py-0.5 text-xs font-semibold mt-0.5 mb-1 ${badgeClass}`}>
+            <Badge
+                variant="outline"
+                className={cn('gap-1.5 text-xs font-semibold mt-0.5 mb-1', badgeClass)}
+            >
                 <span
                     className="w-1.5 h-1.5 rounded-full shrink-0"
                     style={{ backgroundColor: flight.displayColor }}
                 />
                 {CLASS_DISPLAY[flight.classification] ?? flight.classification ?? 'UNCLASSIFIED'}
-            </div>
+            </Badge>
 
             {/* ── 5. SIGNAL ────────────────────────────────── */}
             <SectionHeader label="Signal" />
@@ -280,20 +290,25 @@ const FlightCard = ({ flight }) => {
             {/* ── 6. ACTIONS ───────────────────────────────── */}
             <SectionHeader label="Actions" />
             <div className="flex gap-2 mt-1">
-                <button
+                <Button
+                    variant="outline"
+                    size="sm"
                     onClick={handleTrack}
-                    className="flex-1 text-xs py-1.5 px-2 rounded bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/40 text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-100 transition-colors"
+                    className="flex-1 h-auto py-1.5 px-2 text-xs bg-blue-600/20 hover:bg-blue-600/40 border-blue-500/40 text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-100"
                 >
                     🎯 Track on Map
-                </button>
-                <button
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
                     onClick={handleCopy}
-                    className="flex-1 text-xs py-1.5 px-2 rounded bg-slate-200/60 dark:bg-slate-700/40 hover:bg-slate-300/60 dark:hover:bg-slate-600/40 border border-slate-300/60 dark:border-slate-600/40 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 transition-colors"
+                    className="flex-1 h-auto py-1.5 px-2 text-xs bg-slate-200/60 dark:bg-slate-700/40 border-slate-300/60 dark:border-slate-600/40 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100"
                 >
                     📋 Copy Details
-                </button>
+                </Button>
             </div>
-        </div>
+        </CardContent>
+        </Card>
     )
 }
 
